@@ -1,0 +1,142 @@
+<html>
+
+<head>
+    <meta name='viewport' content="width=device-width,initial-scale=1.0" />
+    <title>{{query}}-Searchpy</title>
+    <meta name='description' content="A meta search engine,features of google,bing,youtube in 1 web app" />
+    <link rel='shortcut icon' href='/favicon.ico' />
+    <style>
+        .input_n {
+            border: none;
+            border: 1px solid #6200ee;
+            border-radius: 20px;
+            outline: none;
+            width: 50%;
+            height: 30px;
+            padding: 8px;
+        }
+
+        .submit-button {
+            text-transform: uppercase;
+            width: 50px;
+            border-radius: 15px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .res_title,
+        .res_content {
+            word-break: break-all;
+        }
+
+        .link_cite {
+            color: #00651f
+        }
+
+        #google,
+        #bing {
+            margin-left: 70px;
+        }
+
+        .title_ {
+            margin-bottom: 5px;
+        }
+
+        .result-snipps {
+            font-weight: lighter;
+        }
+
+        .cached {
+            cursor: pointer;
+        }
+
+        .search-result {
+            max-width: 65%;
+        }
+    </style>
+</head>
+
+<body>
+    <form action='/search'>
+        <div>
+            <input type="text" class="input_n" name='q'>
+            <button class=submit-button>Go</button>
+        </div>
+    </form>
+    <div id=skelly>
+        <div class=skelly_title style="width: 200px;background-color: #e3e3e3;height:20px;"></div>
+        <div class=skelly_misc style="height: 50px;background-color: #e3e3e3;width: 150px;MARGIN-TOP: 10px;"></div>
+    </div>
+    <div class=content id=main style="display: none;">
+        <h1>Results from Google</h1>
+        <div id=google></div>
+        <div id=load-more-goog></div>
+        <h1>Results from Bing</h1>
+        <div id=bing></div>
+        <div id=load-more-bing></div>
+    </div>
+    <script>
+        function make_results(data_dict, container) {
+            for (dat in data_dict) {
+                var div = document.createElement("div");
+                var link = document.createElement("a");
+                var cache_link = document.createElement("a");
+                var link_text = document.createElement('span');
+                var title = document.createElement("h3");
+                var deets = document.createElement("div");
+                var cached_box = document.createElement("span");
+                var data = data_dict[dat];
+                var cached = data.cached;
+                link_text.className = "link_cite";
+                div.className = 'search-result'
+                link.href = "/url?url=" + encodeURIComponent(data.link);
+                title.innerHTML = data.heading;
+                title.className = 'title_'
+                deets.innerHTML = data.text;
+                deets.className = 'result-snipps'
+                cached_box.innerHTML = "View Cached";
+                cached_box.className = 'cached';
+                link_text.innerHTML = data.link;
+                link.appendChild(title);
+                link.appendChild(link_text);
+                div.appendChild(link);
+                div.appendChild(deets);
+                container.appendChild(div);
+                if (cached) {
+                    cache_link.href = "/url?url=" + encodeURIComponent(cached);;
+                    cache_link.appendChild(cached_box);
+                    div.appendChild(cache_link);
+                }
+            }
+        }
+
+        (function (q) {
+            req = new Request('/search/get_results/?q=' + encodeURIComponent(q))
+            fetch(req).then(resp =>
+                resp.json()).then(ret => {
+                google = ret.google;
+                bing = ret.bing;
+                google_data = google.data;
+                bing_data = bing.data;
+                document.getElementById("main").style.display = 'block';
+                document.getElementById('skelly').style.display = 'none';
+                make_results(google_data, document.getElementById("google"));
+                make_results(bing_data, document.getElementById("bing"));
+            }).catch(e => {
+                console.error(e);
+                document.body.innerHTML = "Snap...something broke on our end..apologies";
+
+            })
+        })("{{query|safe}}");
+    </script>
+</body>
