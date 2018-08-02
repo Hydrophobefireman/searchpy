@@ -218,8 +218,10 @@ class Api(object):
             m = tag.attrs.get("m")
             if m:
                 js_data = json.loads(html.unescape(m))
+                if not js_data.get("murl"):
+                    continue
                 img = js_data["murl"]
-                link = js_data["purl"]
+                link = js_data.get("purl")
                 fallback = js_data.get("turl")
                 title = link
                 if img not in str(data):
