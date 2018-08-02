@@ -228,11 +228,17 @@
                 img.setAttribute("data-img", json_data['data'][i]['thumb']);
                 img.setAttribute("alt", "No Preview available or your browser does not support webp images");
                 img.style.display = 'inline-block';
-                if (window.use_custom_dl) {
-                    a.href = "//dl-js.herokuapp.com/video?url=" + encodeURIComponent(link);
-                } else {
-                    a.href = link;
-                }
+                a.href = link;
+                a.setAttribute("data-url", link)
+                a.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    if (window.use_custom_dl) {
+                        window.location = "//dl-js.herokuapp.com/video?url=" + encodeURIComponent(a.getAttribute(
+                            "data-url"));
+                    } else {
+                        window.location = a.getAttribute("data-url")
+                    }
+                })
                 a.appendChild(img);
                 a.appendChild(document.createElement("br"));
                 var bold = document.createElement("b");
