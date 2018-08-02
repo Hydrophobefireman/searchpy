@@ -77,6 +77,15 @@
             margin: 20px;
             color: #000
         }
+
+        .display-imgs {
+            margin: 5px;
+            display: inline-block;
+            max-height: 300px;
+            height: 50%;
+            max-width: 50%;
+            width: auto;
+        }
     </style>
     <title>Images Search</title>
     <meta name='viewport' content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
@@ -171,11 +180,7 @@
                     data = data_[i];
                     img = document.createElement("img");
                     img.src = data.img;
-                    img.style.display = 'inline'
-                    img.style.maxHeight = '300px';
-                    img.style.height = "50%";
-                    img.style.maxWidth = '50%';
-                    img.style.width = 'auto';
+                    img.className = 'display-imgs'
                     img.setAttribute("data-fallback", data.fallback);
                     var link = data.link;
                     var title = data.title;
