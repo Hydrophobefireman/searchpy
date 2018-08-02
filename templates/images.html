@@ -201,6 +201,7 @@
             }
 
             req = new Request("/images/get?q=" + encodeURIComponent(val));
+            window.history.pushState({}, "Images", "/images/search?q=" + val)
             fetch(req)
                 .then(res => res.json())
                 .then(ret => {
