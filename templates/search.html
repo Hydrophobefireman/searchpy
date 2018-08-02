@@ -125,7 +125,7 @@
 <body>
     <form action='/search'>
         <div>
-            <input type="text" class="input_n" name='q'>
+            <input type="text" class="input_n" id='search_button' name='q'>
             <button class=submit-button>Go</button>
         </div>
     </form>
@@ -193,7 +193,8 @@
             }
         }
         (function (q) {
-            req = new Request('/search/get_results/?start={{start}}&q=' + encodeURIComponent(q))
+            req = new Request('/search/get_results/?start={{start}}&q=' + encodeURIComponent(q));
+            document.getElementById("search_button").value = q;
             fetch(req).then(resp =>
                 resp.json()).then(ret => {
                 google = ret.google;
