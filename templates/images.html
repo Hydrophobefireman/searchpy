@@ -1,0 +1,230 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0px;
+            max-width: 100%;
+            padding: 0px;
+        }
+
+        #btn_s:hover,
+        #btn_s:active {
+            box-shadow: 2px 2px #d9dce0;
+            background-color: #6200ee;
+            color: #fff;
+        }
+
+        .input_n {
+            border: none;
+            border: 1px solid #6200ee;
+            border-radius: 20px;
+            outline: none;
+            width: 50%;
+            height: 30px;
+            padding: 8px;
+        }
+
+        #btn_s {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 4px;
+            border: 1px solid #6200ee;
+            outline: none;
+            color: #6200ee;
+            text-transform: uppercase;
+            min-width: 80px;
+            height: 30px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        #content {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: inherit;
+            height: auto;
+            padding: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+        }
+
+        #img-viewer {
+            position: fixed;
+            display: none;
+            width: 100%;
+            height: 60%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #000;
+            z-index: 2;
+            margin: auto;
+            text-align: center;
+        }
+
+        .closebtn {
+            cursor: pointer;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        #txt-link {
+            margin: 20px;
+            color: #000
+        }
+    </style>
+    <title>Images Search</title>
+    <meta name='viewport' content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
+</head>
+
+<body>
+    <div id='img-viewer'>
+        <span>Close</span>
+    </div>
+    <a href='/search' id=txt-link>Web Search</a>
+    <div style="margin:auto;text-align: center;">
+        <div id=main>
+            <div class=input-box>
+                <div class=desc>
+                    <span id=useless>Search For Images</span>
+                </div>
+                <div style="margin-top: 25px;">
+                    <div id=search-ghost style="font-size: 12px;visibility: hidden;margin-bottom: 10px;">Search</div>
+                    <input id=search class=input_n placeholder="Search" style="text-align: center">
+                </div>
+                <button id=btn_s>Search</button>
+            </div>
+            <div id=content style="display: none">
+                <h1>Results From Bing</h1>
+                <div id=bing>
+                </div>
+                <h1>Results From Google</h1>
+                <div id=google>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var submit = document.getElementById("btn_s")
+        var input = document.getElementById("search");
+        var search_ghost = document.getElementById("search-ghost");
+        input.onclick = function () {
+            this.placeholder = '';
+            search_ghost.style.visibility = 'visible';
+        }
+        document.body.onclick = function (e) {
+            if (input.value.length == 0 && e.target !== submit && e.target !== input) {
+                input.placeholder = 'Search';
+                search_ghost.style.visibility = 'hidden';
+            }
+        }
+
+        function make_image_viewer(link, caption, src) {
+            var text = document.createElement("div"),
+                txtlink = document.createElement("a")
+            txtlink.href = link;
+            text.innerHTML = caption;
+            txtlink.style.color = '#fff';
+            text.style.color = '#fff';
+            var viewer = document.getElementById("img-viewer");
+            viewer.innerHTML = '';
+            viewer.style.display = 'block';
+            img = new Image();
+            window.viewer_active = true;
+            img.src = src;
+            img.style.marginTop = '50px';
+            img.style.height = '50%';
+            txtlink.appendChild(img);
+            txtlink.appendChild(text);
+            viewer.appendChild(txtlink);
+            var div = document.createElement("div");
+            div.innerHTML = 'Close'
+            div.className = 'closebtn';
+            viewer.appendChild(div);
+            div.onclick = function () {
+                viewer.style.display = 'none';
+                viewer.innerHTML = '';
+            }
+        }
+
+        function get_data() {
+            if (input.value.length == 0) {
+                document.getElementById("useless").innerHTML = "Length Can't Be Zero";
+                return;
+            } else {
+                document.getElementById("useless").innerHTML = "Loading";
+            }
+            var content = document.getElementById("content");
+            var val = input.value;
+            document.title = val + ' -Image Search';
+            document.getElementById("txt-links").href = '/search?q=' + encodeURIComponent(val);
+
+            function createImgs(data_, name) {
+                document.getElementById("useless").innerHTML = "Search For Images";
+                content.style.display = 'block';
+                for (i in data_) {
+                    data = data_[i];
+                    img = document.createElement("img");
+                    img.src = data.img;
+                    img.style.display = 'inline'
+                    img.style.maxHeight = '300px';
+                    img.style.height = "50%";
+                    img.style.maxWidth = '50%';
+                    img.style.width = 'auto';
+                    img.setAttribute("data-fallback", data.fallback);
+                    var link = data.link;
+                    var title = data.title;
+                    img.alt = title;
+                    document.getElementById(name).appendChild(img);
+                    img.setAttribute("data-link", link);
+                    img.setAttribute("data-caption", title);
+                    img.onclick = function () {
+                        make_image_viewer(this.getAttribute("data-link"), this.getAttribute("data-caption"),
+                            this.src);
+                    }
+                    img.onerror = function (e) {
+                        console.log("Used Fallback Image For:" + this)
+                        this.src = this.getAttribute("data-fallback")
+                    }
+                }
+                document.getElementById(name).appendChild(document.createElement("hr"));
+            }
+
+            req = new Request("/images/get?q=" + encodeURIComponent(val));
+            fetch(req)
+                .then(res => res.json())
+                .then(ret => {
+                    bing = ret.bing;
+                    google = ret.google;
+                    document.getElementById("google").innerHTML = '';
+                    document.getElementById("bing").innerHTML = '';
+                    content.style.display = 'none'
+                    createImgs(bing, 'bing');
+                    createImgs(google, 'google');
+
+                }).catch(e => {
+                    document.getElementById("useless").innerHTML = "An Error Occured";
+                    console.error(e);
+                });
+        };
+        submit.onclick = function () {
+            get_data()
+        }
+        input.onkeyup = function (e) {
+            if (e.keyCode == 13) {
+                get_data()
+            }
+        }
+        //{% if query %}
+        input.value = "{{query|safe}}";
+        submit.click();
+        //{% endif %}
+    </script>
+</body>
+
+</html>

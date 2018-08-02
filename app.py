@@ -15,6 +15,7 @@ from flask_compress import Compress
 from htmlmin.minify import html_minify
 
 import apIo
+import scrape
 
 api = apIo.Api()
 app = Flask(__name__)
@@ -30,9 +31,64 @@ def index():
 @app.route("/search")
 def search():
     query = request.args.get("q")
+    _start = request.args.get("start") or 0
+    start = int(_start)
     if not query:
         return html_minify(render_template("index.html"))
-    return html_minify(render_template("search.html", query=query))
+    return html_minify(render_template("search.html", query=query, start=start))
+
+
+@app.route("/youtube/", strict_slashes=False)
+def yt_home():
+    return render_template("youtube.html")
+
+
+@app.route("/youtube/trending/", strict_slashes=False)
+def yt_trending():
+    data = api.youtube(trending=True)
+    res = make_response(json.dumps(data))
+    res.headers["Content-Type"] = "application/json"
+    return res
+
+
+@app.route("/youtube/search/", strict_slashes=False)
+def youtube_search():
+    _query = request.args.get("q")
+    query = _query if _query else False
+    return render_template("youtube-results.html", q=query)
+
+
+@app.route("/youtube/get/", strict_slashes=False)
+def youtube_search_():
+    _query = request.args.get("q")
+    query = _query if _query else False
+    if not query:
+        return redirect("/youtube")
+    data = api.youtube(query=query)
+    res = make_response(json.dumps(data))
+    res.headers["Content-Type"] = "application/json"
+    return res
+
+
+@app.route("/images/search/", strict_slashes=False)
+def images_():
+    _query = request.args.get("q")
+    query = _query if _query else False
+    return render_template("images.html", query=query)
+
+
+@app.route("/images/get/", strict_slashes=False)
+def get_images():
+    query = request.args.get("q")
+    if query is None or len(query) == 0:
+        return "No"
+    try:
+        res = make_response(scrape.api(query))
+    except Exception as e:
+        return str(e)
+    res.headers["Content-Type"] = "application/json"
+    res.headers["Access-Control-Allow-Origin"] = "*"
+    return res
 
 
 @app.route("/url")
@@ -52,7 +108,12 @@ def enforce_https():
         and not "localhost" in request.url
         and not "192.168." in request.url
     ):
-        return redirect(request.url.replace("http://", "https://"), code=301)
+        rd = request.url.replace("http://", "https://")
+        if "?" in rd:
+            rd += "&rd=ssl"
+        else:
+            rd += "?rd=ssl"
+        return redirect(rd, code=307)
 
 
 @app.route("/search/get_results/", methods=["GET"])
@@ -60,9 +121,27 @@ def scrape_results():
     query = request.args.get("q")
     if not query:
         return redirect("/search")
-    google = api.google(query)
-    bing = api.bing(query)
+    _start = request.args.get("start") or 0
+    start = int(_start) if _start.isdigit() else 0
+    google = api.google(query, page_start=start)
+    bing = api.bing(query, page_start=start)
     res = make_response(json.dumps({"google": google, "bing": bing}))
+    res.headers["Content-Type"] = "application/json"
+    return res
+
+
+@app.route("/search/get/<_engine>/", strict_slashes=False)
+def specific_engine(_engine):
+    query = request.args.get("q")
+    if not query:
+        return redirect("/search")
+    _start = request.args.get("start") or 0
+    start = int(_start) if _start.isdigit() else 0
+    engine = _engine.lower()
+    if not hasattr(api, engine):
+        return "None"
+    data = getattr(api, engine)(query, page_start=start)
+    res = make_response(json.dumps({engine: data}))
     res.headers["Content-Type"] = "application/json"
     return res
 

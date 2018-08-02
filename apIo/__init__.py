@@ -41,26 +41,32 @@ class ExtractorError(BaseException):
 class Api(object):
     """main class for all searches"""
 
-    def google(self, query, pages=1):
+    def google(self, query, pages=1, page_start=0):
         """Google Text based search currently an average search gives 
         out 7-8 links per page so it is recommended to set pages=2"""
-        if pages >= 100:
+        if pages >= 100 or page_start >= 1000:
             raise ValueError(
                 "Google does not show more than (usually)900 responses for a query"
             )
         start = 0
         _urls = []
-        for j in range(pages):
-            i = j + 1
-            if i == 1:
-                google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8".format(
-                    q=quote_plus(query)
-                )
-            else:
-                start += 10
-                google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&start={start}".format(
-                    q=quote_plus(query), start=start
-                )
+        if not page_start:
+            for j in range(pages):
+                i = j + 1
+                if i == 1:
+                    google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8".format(
+                        q=quote_plus(query)
+                    )
+                else:
+                    start += 10
+                    google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&start={start}".format(
+                        q=quote_plus(query), start=start
+                    )
+                _urls.append(google_base)
+        else:
+            google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&start={start}".format(
+                q=quote_plus(query), start=page_start
+            )
             _urls.append(google_base)
         results = {}
         results["query"] = query
@@ -105,7 +111,7 @@ class Api(object):
                 )
         return results
 
-    def bing(self, query, pages=1):
+    def bing(self, query, pages=1, page_start=0):
         """
         Bing Search Results
         """
@@ -113,18 +119,24 @@ class Api(object):
         results["query"] = query
         start = 0
         _urls = []
-        for j in range(pages):
-            i = j + 1
-            if i == 1:
-                google_base = "https://www.bing.com/search?q={q}".format(
-                    q=quote_plus(query)
-                )
-            else:
-                start += 10
-                google_base = "https://www.bing.com/search?q={q}&first={start}".format(
-                    q=quote_plus(query), start=start
-                )
-            _urls.append(google_base)
+        if not page_start:
+            for j in range(pages):
+                i = j + 1
+                if i == 1:
+                    bing_base = "https://www.bing.com/search?q={q}".format(
+                        q=quote_plus(query)
+                    )
+                else:
+                    start += 10
+                    bing_base = "https://www.bing.com/search?q={q}&first={start}".format(
+                        q=quote_plus(query), start=start
+                    )
+                _urls.append(bing_base)
+        else:
+            bing_base = "https://www.bing.com/search?q={q}&first={start}".format(
+                q=quote_plus(query), start=page_start
+            )
+            _urls.append(bing_base)
         results["urls"] = _urls
         results["data"] = []
         _results_class = "b_algo"
@@ -217,12 +229,12 @@ class Api(object):
         results["data"] = data
         return results
 
-    def google_images(self, query, pages=1):
+    def google_images(self, query, pages=1, page_start=0):
         """
         Google Image Searches,on average one page returns 100 results
         It also returns a fallback useful when the original image link dies
         """
-        if pages * 100 >= 900:
+        if pages * 100 >= 900 or page_start >= 1000:
             raise ValueError(
                 "Google does not show more than (usually)900 responses for a query"
             )
@@ -230,17 +242,23 @@ class Api(object):
         results = {}
         results["query"] = query
         sess = requests.Session()
-        for j in range(pages):
-            i = j + 1
-            if i == 1:
-                google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&tbm=isch".format(
-                    q=quote_plus(query)
-                )
-            else:
-                start += 100
-                google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&start={start}&tbm=isch".format(
-                    q=quote_plus(query), start=start
-                )
+        if not page_start:
+            for j in range(pages):
+                i = j + 1
+                if i == 1:
+                    google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&tbm=isch".format(
+                        q=quote_plus(query)
+                    )
+                else:
+                    start += 100
+                    google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&start={start}&tbm=isch".format(
+                        q=quote_plus(query), start=start
+                    )
+                _urls.append(google_base)
+        else:
+            google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8&start={start}&tbm=isch".format(
+                q=quote_plus(query), start=page_start
+            )
             _urls.append(google_base)
         results["urls"] = _urls
         for url in _urls:
