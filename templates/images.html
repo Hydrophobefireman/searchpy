@@ -162,7 +162,7 @@
             var content = document.getElementById("content");
             var val = input.value;
             document.title = val + ' -Image Search';
-            document.getElementById("txt-links").href = '/search?q=' + encodeURIComponent(val);
+            document.getElementById("txt-link").href = '/search?q=' + encodeURIComponent(val);
 
             function createImgs(data_, name) {
                 document.getElementById("useless").innerHTML = "Search For Images";
