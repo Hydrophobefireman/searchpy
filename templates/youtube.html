@@ -130,12 +130,26 @@
     <script>
         var custom_dl = document.getElementById("ytdl")
         custom_dl.onclick = function () {
+            el_array = document.getElementsByClassName("youtube-links");
             if (window.use_custom_dl) {
                 custom_dl.innerHTML = 'Currently Using Default Youtube';
-                window.use_custom_dl = false
+                window.use_custom_dl = false;
+                change_href(el_array, false);
             } else {
-                window.use_custom_dl = true
+                window.use_custom_dl = true;
+                change_href(el_array, true);
                 custom_dl.innerHTML = 'Currently Using Custom Downloader';
+            }
+        }
+
+        function change_href(el_array, val) {
+            for (var i = 0; i < el_array.length; i++) {
+                el = el_array[i];
+                if (val) {
+                    el.href = '//dl-js.herokuapp.com/video?url=' + encodeURIComponent(el.getAttribute("data-url"));
+                } else {
+                    el.href = el.getAttribute("data-url");
+                }
             }
         }
 
@@ -229,11 +243,9 @@
                 img.setAttribute("data-img", json_data['data'][i]['thumb']);
                 img.setAttribute("alt", "No Preview available or your browser does not support webp images");
                 img.style.display = 'inline-block';
-                if (window.use_custom_dl) {
-                    a.href = "//dl-js.herokuapp.com/video?url=" + encodeURIComponent(link);
-                } else {
-                    a.href = link;
-                }
+                a.href = link;
+                a.setAttribute("data-url", link);
+                a.className = 'youtube-links';
                 a.appendChild(img);
                 a.appendChild(document.createElement("br"));
                 var bold = document.createElement("b");
