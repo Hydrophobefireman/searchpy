@@ -68,7 +68,9 @@
     <script src='/static/js/images.min.js'></script>
     <script>
         //{% if query %}
-        input.value = "{{query|safe}}";
+        var txt = document.createElement("textarea");
+        txt.innerHTML = "{{query}}";
+        input.value = txt.value;
         submit.click();
         //{% endif %}
     </script>
