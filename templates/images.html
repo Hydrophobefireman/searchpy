@@ -12,6 +12,24 @@
 <body>
     <div>
         <button class=ipg id=ytdl>Save Data on Images</button>
+        <button class='ipg' id='static_page' jsfunc='return new XMLSerializer().serializeToString(document)'>Get A static Copy of this Page</button>
+        <script>
+            document.getElementById("static_page").onclick = function () {
+                var func = new Function(this.getAttribute("jsfunc"));
+                var blob = window.URL.createObjectURL(new Blob([func()], {
+                    type: "text/html"
+                }));
+                var link_ = document.createElement("a"),
+                    old = document.createElement("a");
+                old.href = window.location.href;
+                old.target = '__blank';
+                document.body.appendChild(old);
+                link_.href = blob;
+                document.body.appendChild(link_);
+                old.click()
+                link_.click();
+            }
+        </script>
     </div>
     <script>
         var custom_dl = document.getElementById("ytdl")
