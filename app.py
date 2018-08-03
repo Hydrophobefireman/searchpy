@@ -1,12 +1,13 @@
+import html
 import json
 from urllib.parse import unquote, unquote_plus
 
 from flask import (
     Flask,
     Response,
+    abort,
     make_response,
     redirect,
-    abort,
     render_template,
     request,
     send_from_directory,
@@ -35,6 +36,7 @@ def search():
     start = int(_start)
     if not query:
         return html_minify(render_template("index.html"))
+    query = html.unescape(query)
     return html_minify(render_template("search.html", query=query, start=start))
 
 
@@ -54,14 +56,14 @@ def yt_trending():
 @app.route("/youtube/search/", strict_slashes=False)
 def youtube_search():
     _query = request.args.get("q")
-    query = _query if _query else False
+    query = html.unescape(_query) if _query else False
     return render_template("youtube-results.html", q=query)
 
 
 @app.route("/youtube/get/", strict_slashes=False)
 def youtube_search_():
     _query = request.args.get("q")
-    query = _query if _query else False
+    query = html.unescape(_query) if _query else False
     if not query:
         return redirect("/youtube")
     data = api.youtube(query=query)
@@ -73,7 +75,7 @@ def youtube_search_():
 @app.route("/images/search/", strict_slashes=False)
 def images_():
     _query = request.args.get("q")
-    query = _query if _query else False
+    query = html.unescape(_query) if _query else False
     return render_template("images.html", query=query)
 
 
@@ -82,6 +84,7 @@ def get_images():
     query = request.args.get("q")
     if query is None or len(query) == 0:
         return "No"
+    query = html.unescape(query)
     try:
         res = make_response(scrape.api(query))
     except Exception as e:
@@ -121,6 +124,7 @@ def scrape_results():
     query = request.args.get("q")
     if not query:
         return redirect("/search")
+    query = html.unescape(query)
     _start = request.args.get("start") or 0
     start = int(_start) if _start.isdigit() else 0
     google = api.google(query, page_start=start)
@@ -135,6 +139,7 @@ def specific_engine(_engine):
     query = request.args.get("q")
     if not query:
         return redirect("/search")
+    query = html.unescape(query)
     _start = request.args.get("start") or 0
     start = int(_start) if _start.isdigit() else 0
     engine = _engine.lower()
