@@ -1,7 +1,7 @@
 import html
 import json
 from urllib.parse import unquote, unquote_plus
-
+from threading import Thread
 from flask import (
     Flask,
     Response,
@@ -76,7 +76,11 @@ def youtube_search_():
 def images_():
     _query = request.args.get("q")
     query = html.unescape(_query) if _query else False
-    return render_template("images.html", query=query)
+    if not query:
+        return render_template("images-search.html")
+    google = api.google_images(query)["data"]
+    bing = api.bing_images(query)["data"]
+    return render_template("images.html", query=query, bing=bing, google=google)
 
 
 @app.route("/images/get/", strict_slashes=False)

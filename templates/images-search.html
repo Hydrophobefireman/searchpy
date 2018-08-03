@@ -16,19 +16,19 @@
     <script>
         var custom_dl = document.getElementById("ytdl")
         custom_dl.onclick = function () {
+            el_array = document.getElementsByClassName("display-imgs");
             if (window.data_saver) {
                 custom_dl.innerHTML = 'Using Full Quality Images';
                 window.data_saver = false;
-                change_href(false);
+                change_href(el_array, false);
             } else {
                 window.data_saver = true;
-                change_href(true);
+                change_href(el_array, true);
                 custom_dl.innerHTML = 'Using Compressed Images';
             }
         }
 
-        function change_href(val) {
-            el_array = document.getElementsByClassName("display-imgs");
+        function change_href(el_array, val) {
             for (var i = 0; i < el_array.length; i++) {
                 el = el_array[i];
                 if (val) {
@@ -52,38 +52,11 @@
                 <div style="margin-top: 25px;">
                     <div id=search-ghost style="font-size: 12px;visibility: hidden;margin-bottom: 10px;">Search</div>
                     <form action='/images/search/' id='image_form'>
-                        <input id=search class=input_n placeholder="Search" name="q" value="{{query}}" style="text-align: center">
+                        <input id=search class=input_n placeholder="Search" name="q" style="text-align: center">
                         <input type="submit" style="display: none">
                     </form>
                 </div>
                 <button id=btn_s onclick="document.getElementById('image_form').submit()">Search</button>
-            </div>
-            <div id=content>
-                <h1>Results From Bing</h1>
-                <div id=bing>
-                    <!--{%- for b in bing -%}-->
-                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}' title='{{b["title"]}}'
-                        onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
-                    <!--{%- endfor -%}-->
-                </div>
-                <h1>Results From Google</h1>
-                <div id=google>
-                    <!--{%- for b in google -%}-->
-                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}' data-caption='{{b[title]}}'
-                        title='{{b["title"]}}' onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
-                    <!--{%- endfor -%}-->
-                    <script>
-                        change_href(window.data_saver)
-                        var imgs = document.getElementsByClassName("display-imgs");
-                        for (var i = 0; i < imgs.length; i++) {
-                            img = imgs[i];
-                            img.onclick = function () {
-                                make_image_viewer(this.getAttribute('data-link'), this.getAttribute('title'), this.src)
-                            }
-                        }
-                    </script>
-                    <script src='/static/js/images.min.js'></script>
-                </div>
             </div>
         </div>
     </div>
