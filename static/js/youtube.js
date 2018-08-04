@@ -28,13 +28,6 @@
             txt.innerHTML = html;
             return txt.value;
         }
-        var doctitle = decodehtml(decodehtml("{{q}}"));
-        if (doctitle.length != 0) {
-            var titles = "Results for " + doctitle
-            document.title = titles;
-        } else {
-            document.title = "Results from youtube.com"
-        }
 
         function search() {
             var q = document.getElementById("search").value;
