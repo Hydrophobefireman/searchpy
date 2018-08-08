@@ -404,7 +404,9 @@ class Api(object):
                     video_length = vid[vid_keys]["lengthText"]["simpleText"]
                     view_count = vid[vid_keys]["viewCountText"]["simpleText"]
                 except:
-                    publish_time, video_length, view_count = [None] * 3
+                    publish_time = "NA"
+                    video_length = "NA"
+                    view_count = "Na"
             channel_thumbnail = vid[vid_keys]["channelThumbnail"]["thumbnails"][0][
                 "url"
             ]
