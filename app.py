@@ -45,6 +45,24 @@ def yt_home():
     return render_template("youtube.html")
 
 
+@app.after_request
+def cors___(res):
+    res.direct_passthrough = False
+    res.headers["Access-Control-Allow-Origin"] = "https://pycode.tk"
+    res.headers["Access-Control-Allow-Headers"] = "*"
+    vary = res.headers.get("Vary")
+    if vary:
+        if "accept-encoding" not in vary.lower():
+            res.headers[
+                "Vary"
+            ] = "{}, Access-Control-Allow-Origin,Access-Control-Allow-Headers".format(
+                vary
+            )
+    else:
+        res.headers["Vary"] = "Access-Control-Allow-Origin,Access-Control-Allow-Headers"
+    return res
+
+
 @app.route("/youtube/trending/", strict_slashes=False)
 def yt_trending():
     data = api.youtube(trending=True)
