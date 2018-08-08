@@ -399,9 +399,12 @@ class Api(object):
                     )
                 except:
                     description = None
-            publish_time = vid[vid_keys]["publishedTimeText"]["simpleText"]
-            video_length = vid[vid_keys]["lengthText"]["simpleText"]
-            view_count = vid[vid_keys]["viewCountText"]["simpleText"]
+                try:
+                    publish_time = vid[vid_keys]["publishedTimeText"]["simpleText"]
+                    video_length = vid[vid_keys]["lengthText"]["simpleText"]
+                    view_count = vid[vid_keys]["viewCountText"]["simpleText"]
+                except:
+                    publish_time, video_length, view_count = [None] * 3
             channel_thumbnail = vid[vid_keys]["channelThumbnail"]["thumbnails"][0][
                 "url"
             ]
