@@ -407,9 +407,12 @@ class Api(object):
                 publish_time = "NA"
                 video_length = "NA"
                 view_count = "NA"
-            channel_thumbnail = vid[vid_keys]["channelThumbnail"]["thumbnails"][0][
-                "url"
-            ]
+            try:
+                channel_thumbnail = vid[vid_keys]["channelThumbnail"]["thumbnails"][0][
+                    "url"
+                ]
+            except:
+                continue
             channel_url = (
                 "https://youtube.com"
                 + vid[vid_keys]["shortBylineText"]["runs"][0]["navigationEndpoint"][
