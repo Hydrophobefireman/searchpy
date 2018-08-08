@@ -399,14 +399,14 @@ class Api(object):
                     )
                 except:
                     description = None
-                try:
-                    publish_time = vid[vid_keys]["publishedTimeText"]["simpleText"]
-                    video_length = vid[vid_keys]["lengthText"]["simpleText"]
-                    view_count = vid[vid_keys]["viewCountText"]["simpleText"]
-                except:
-                    publish_time = "NA"
-                    video_length = "NA"
-                    view_count = "Na"
+            try:
+                publish_time = vid[vid_keys]["publishedTimeText"]["simpleText"]
+                video_length = vid[vid_keys]["lengthText"]["simpleText"]
+                view_count = vid[vid_keys]["viewCountText"]["simpleText"]
+            except:
+                publish_time = "NA"
+                video_length = "NA"
+                view_count = "NA"
             channel_thumbnail = vid[vid_keys]["channelThumbnail"]["thumbnails"][0][
                 "url"
             ]
