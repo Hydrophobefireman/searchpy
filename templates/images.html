@@ -6,6 +6,10 @@
     <script>
         window.data_saver = false;
     </script>
+    <meta id='img-query' content="{{query}}" />
+    <script>
+        window.query = document.getElementById('img-query').getAttribute('content');
+    </script>
     <meta name='viewport' content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
 </head>
 
@@ -52,7 +56,12 @@
                 <div style="margin-top: 25px;">
                     <div id=search-ghost style="font-size: 12px;visibility: hidden;margin-bottom: 10px;">Search</div>
                     <form action='/images/search/' id='image_form'>
-                        <input id=search class=input_n placeholder="Search" name="q" value="{{query}}" style="text-align: center">
+                        <input id=search class=input_n placeholder="Search" name="q" value='' style="text-align: center">
+                        <script>
+                            (() => {
+                                document.getElementById('search').value = window.query;
+                            })()
+                        </script>
                         <input type="submit" style="display: none">
                     </form>
                 </div>
@@ -82,7 +91,7 @@
                             }
                         }
                     </script>
-                    <script src='/static/jsmin/images.min.js'></script>
+                    <script src='/static/jsmin/images.js'></script>
                 </div>
             </div>
         </div>
