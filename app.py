@@ -132,6 +132,7 @@ def enforce_https():
         and not "127.0.0.1" in request.url
         and not "localhost" in request.url
         and not "192.168." in request.url
+        and not request.url.startswith("http://")
     ):
         rd = request.url.replace("http://", "https://")
         if "?" in rd:
