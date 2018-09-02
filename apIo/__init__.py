@@ -1,4 +1,4 @@
-r"""
+"""
 Creates Simple APIs For some major websites
 that make scraping easy,request a website or create a pull request at
 https://github.com/hydrophobefireman/apIo/ 
