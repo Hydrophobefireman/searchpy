@@ -1,12 +1,12 @@
 const submit = document.getElementById("btn_s");
 const input = document.getElementById("search");
 const search_ghost = document.getElementById("search-ghost");
-input.onclick = e => {
-    e.target.placeholder = '';
+input.onclick = ({target}) => {
+    target.placeholder = '';
     search_ghost.style.visibility = 'visible';
 }
-document.body.onclick = e => {
-    if (input.value.length == 0 && e.target !== submit && e.target !== input) {
+document.body.onclick = ({target}) => {
+    if (input.value.length == 0 && target !== submit && target !== input) {
         input.placeholder = 'Search';
         search_ghost.style.visibility = 'hidden';
     }
