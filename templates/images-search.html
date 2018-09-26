@@ -20,10 +20,12 @@
             if (window.data_saver) {
                 custom_dl.innerHTML = 'Using Full Quality Images';
                 window.data_saver = false;
+                window.localStorage.setItem("save-data",false);
                 change_href(el_array, false);
             } else {
                 window.data_saver = true;
                 change_href(el_array, true);
+                window.localStorage.setItem("save-data",!0);
                 custom_dl.innerHTML = 'Using Compressed Images';
             }
         }

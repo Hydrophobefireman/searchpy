@@ -1,16 +1,21 @@
 const submit = document.getElementById("btn_s");
 const input = document.getElementById("search");
 const search_ghost = document.getElementById("search-ghost");
-input.onclick = ({target}) => {
+input.onclick = ({
+    target
+}) => {
     target.placeholder = '';
     search_ghost.style.visibility = 'visible';
 }
-document.body.onclick = ({target}) => {
+document.body.onclick = ({
+    target
+}) => {
     if (input.value.length == 0 && target !== submit && target !== input) {
         input.placeholder = 'Search';
         search_ghost.style.visibility = 'hidden';
     }
 }
+
 
 function make_image_viewer(link, caption, src) {
     const text = document.createElement("div");

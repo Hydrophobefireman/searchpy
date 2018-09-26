@@ -23,15 +23,24 @@
             if (window.data_saver) {
                 custom_dl.innerHTML = 'Using Full Quality Images';
                 window.data_saver = false;
+                window.localStorage.setItem("save-data",false);
                 change_href(false);
             } else {
                 window.data_saver = true;
                 change_href(true);
+                window.localStorage.setItem("save-data",true)
                 custom_dl.innerHTML = 'Using Compressed Images';
             }
         }
 
         function change_href(val) {
+            custom_dl.innerHTML = (() => {
+    if (val) {
+        return 'Using Compressed Images'
+    } else {
+        return 'Using Full Quality Images'
+    }
+})();
             el_array = document.getElementsByClassName("display-imgs");
             for (var i = 0; i < el_array.length; i++) {
                 el = el_array[i];
@@ -71,17 +80,20 @@
                 <h1>Results From Bing</h1>
                 <div id=bing>
                     <!--{%- for b in bing -%}-->
-                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}' title='{{b["title"]}}'
-                        onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
+                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}'
+                        title='{{b["title"]}}' onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
                     <!--{%- endfor -%}-->
                 </div>
                 <h1>Results From Google</h1>
                 <div id=google>
                     <!--{%- for b in google -%}-->
-                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}' data-caption='{{b[title]}}'
-                        title='{{b["title"]}}' onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
+                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}'
+                        data-caption='{{b[title]}}' title='{{b["title"]}}' onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
                     <!--{%- endfor -%}-->
                     <script>
+                        if (window.localStorage.getItem("save-data")) {
+                            window.data_saver = !0
+                        }
                         change_href(window.data_saver)
                         var imgs = document.getElementsByClassName("display-imgs");
                         for (var i = 0; i < imgs.length; i++) {
