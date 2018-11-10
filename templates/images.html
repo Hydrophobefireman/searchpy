@@ -1,24 +1,98 @@
 <html>
-
-<head>
-    <link rel='stylesheet' href='/static/styles/images.min.css' />
-    <title>Images Search</title>
-    <script>
-        window.data_saver = false;
-    </script>
-    <meta id='img-query' content="{{query}}" />
-    <script>
-        window.query = document.getElementById('img-query').getAttribute('content');
-    </script>
-    <meta name='viewport' content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
-</head>
-
-<body>
-    <div>
-        <button class=ipg id=ytdl>Save Data on Images</button>
+ <head>
+  <link href="/static/styles/images.min.css" rel="stylesheet"/>
+  <title>
+   Images Search
+  </title>
+  <script>
+  	window.onerror=e=>alert(e)
+   window.data_saver = false;
+  </script>
+  <meta content="{{query}}" id="img-query"/>
+  <script>
+   window.query = document.getElementById('img-query').getAttribute('content');
+  </script>
+  <meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+ </head>
+ <body>
+  <div id="bing-data" style="display:none">
+  		{{bing|tojson}}
+  	</div>
+  <div id="google-data" style="display:none">
+  		{{google|tojson}}
+  	</div>
+  <div>
+   <button class="ipg" id="ytdl">
+    Save Data on Images
+   </button>
+  </div>
+  <div id="img-viewer">
+   <span>
+    Close
+   </span>
+  </div>
+  <a href="/search" id="txt-link">
+   Web Search
+  </a>
+  <div style="margin:auto;text-align: center;">
+   <div id="main">
+    <div class="input-box">
+     <div class="desc">
+      <span id="useless">
+       Search For Images
+      </span>
+     </div>
+     <div style="margin-top: 25px;">
+      <div id="search-ghost" style="font-size: 12px;visibility: hidden;margin-bottom: 10px;">
+       Search
+      </div>
+      <form action="/images/search/" id="image_form">
+       <input class="input_n" id="search" name="q" placeholder="Search" style="text-align: center" value=""/>
+       <script>
+        (() => {document.getElementById('search').value = window.query; })()
+       </script>
+       <input style="display: none" type="submit"/>
+      </form>
+     </div>
+     <button id="btn_s" onclick="document.getElementById('image_form').submit()">
+      Search
+     </button>
     </div>
-    <script>
-        var custom_dl = document.getElementById("ytdl")
+    <div id="content">
+     <h1>
+      Results From Bing
+     </h1>
+     <div id="bing">
+     </div>
+     <h1>
+      Results From Google
+     </h1>
+     <div id="google"> 
+      <script src="/static/jsmin/images.js"></script>
+        <script>
+        	var _bing=JSON.parse(document.getElementById("bing-data").innerHTML);
+        	var _google=JSON.parse(document.getElementById("google-data").innerHTML);
+        	for(var b of _bing){  
+       var im=document.createElement("img");
+        im.className="display-imgs";
+        im.setAttribute("data-caption",b.title);
+        im.setAttribute("data-fallback",b.fallback);
+        im.setAttribute("data-link",b.link);
+        im.setAttribute("data-original",b.img)
+        im.setAttribute("title",b.title);
+        document.getElementById("bing").appendChild(im);
+        	}  
+        		for(var b of _google){
+        var im=document.createElement("img");
+        im.className="display-imgs";
+        im.setAttribute("data-caption",b.title);
+        im.setAttribute("data-fallback",b.fallback);
+        im.setAttribute("data-link",b.link);
+        im.setAttribute("data-original",b.img)
+        im.setAttribute("title",b.title);
+        document.getElementById("google").appendChild(im);
+        	}
+   var custom_dl = document.getElementById("ytdl")
         custom_dl.onclick = function () {
             if (window.data_saver) {
                 custom_dl.innerHTML = 'Using Full Quality Images';
@@ -51,47 +125,10 @@
                 }
             }
         }
-    </script>
-    <div id='img-viewer'>
-        <span>Close</span>
-    </div>
-    <a href='/search' id=txt-link>Web Search</a>
-    <div style="margin:auto;text-align: center;">
-        <div id=main>
-            <div class=input-box>
-                <div class=desc>
-                    <span id=useless>Search For Images</span>
-                </div>
-                <div style="margin-top: 25px;">
-                    <div id=search-ghost style="font-size: 12px;visibility: hidden;margin-bottom: 10px;">Search</div>
-                    <form action='/images/search/' id='image_form'>
-                        <input id=search class=input_n placeholder="Search" name="q" value='' style="text-align: center">
-                        <script>
-                            (() => {
-                                document.getElementById('search').value = window.query;
-                            })()
-                        </script>
-                        <input type="submit" style="display: none">
-                    </form>
-                </div>
-                <button id=btn_s onclick="document.getElementById('image_form').submit()">Search</button>
-            </div>
-            <div id=content>
-                <h1>Results From Bing</h1>
-                <div id=bing>
-                    <!--{%- for b in bing -%}-->
-                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}'
-                        title='{{b["title"]}}' onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
-                    <!--{%- endfor -%}-->
-                </div>
-                <h1>Results From Google</h1>
-                <div id=google>
-                    <!--{%- for b in google -%}-->
-                    <img class='display-imgs' data-fallback='{{b["fallback"]}}' data-original='{{b["img"]}}' data-link='{{b["link"]}}'
-                        data-caption='{{b[title]}}' title='{{b["title"]}}' onerror="console.log('used fallback image');this.src=this.getAttribute('data-fallback');">
-                    <!--{%- endfor -%}-->
-                    <script>
-                        if (window.localStorage.getItem("save-data")) {
+  </script>
+  	
+  <script>
+       if (window.localStorage.getItem("save-data")) {
                             window.data_saver = !0
                         }
                         change_href(window.data_saver)
@@ -102,12 +139,10 @@
                                 make_image_viewer(this.getAttribute('data-link'), this.getAttribute('title'), this.src)
                             }
                         }
-                    </script>
-                    <script src='/static/jsmin/images.js'></script>
-                </div>
-            </div>
-        </div>
+      </script>
+     </div>
     </div>
-</body>
-
+   </div>
+  </div>
+ </body>
 </html>
