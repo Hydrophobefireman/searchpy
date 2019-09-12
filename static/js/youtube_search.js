@@ -57,19 +57,20 @@
             window.location = url;
         }
 
-        function search_init(q) {
+        async function search_init(q) {
             const req = new Request(`/youtube/get?q=${encodeURIComponent(q)}`);
-            fetch(req)
-                .then(response => response.text()).then(response => {
-                    gen_results(response);
-                }).then(result => {
-                    console.log(result);
-                }).catch(error => {
-                    const div = document.createElement("div");
-                    div.style.color = 'red';
-                    div.innerText = error;
-                    document.getElementById('youtubeprev').appendChild(div);
-                });
+            try {
+                const response = await fetch(req);
+                const response_1 = await response.text();
+                gen_results(response_1);
+                const result = undefined;
+                console.log(result);
+            } catch (error) {
+                const div = document.createElement("div");
+                div.style.color = 'red';
+                div.innerText = error;
+                document.getElementById('youtubeprev').appendChild(div);
+            }
         }
 
         function gen_results(json_data) {

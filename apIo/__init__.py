@@ -6,14 +6,14 @@ https://github.com/hydrophobefireman/apIo/
 Goal:support youtube,google,bing,duckduckgo,wikipedia and reddit(read data only)
 Example:
 Get google searches:
->>>from apIo import Api
->>>api=Api()
->>>extractor = api.google
->>>query="Python"
->>>data=extractor(query) #The data will be returned in a dict
->>>data[0]['link']
+>>> from apIo import Api
+>>> api=Api()
+>>> extractor = api.google
+>>> query="Python"
+>>> data=extractor(query) #The data will be returned in a dict
+>>> data[0]['link']
 https://www.python.org
->>>data[0]['heading']
+>>> data[0]['heading']
 The Home of Python
 """
 import requests

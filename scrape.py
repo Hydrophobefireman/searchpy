@@ -19,7 +19,7 @@ sess = requests.Session()
 
 def get_data_bing(url, adl=False):
     bing_base_adlt_url = "https://bing.com/settings.aspx?pref_sbmt=1&adlt_set=off&adlt_confirm=1&is_child=0&"
-    #print("[Bing]Fetching:", url)
+    # print("[Bing]Fetching:", url)
     page = sess.get(url, headers=basic_headers, allow_redirects=True)
     cookies = dict(page.cookies)
     data = []
@@ -27,7 +27,7 @@ def get_data_bing(url, adl=False):
     if adl:
         _ru = soup.find(attrs={"id": "ru"})
         _guid = soup.find(attrs={"id": "GUID"})
-        #print(page.url)
+        # print(page.url)
         if _ru is None or _guid is None:
             raise Exception("Could Not verify age")
         ru = _ru.attrs.get("value")
@@ -39,7 +39,7 @@ def get_data_bing(url, adl=False):
         if "/images/" not in req.url:
             raise Exception("Could not Find Images")
         soup = bs(req.text, "html.parser")
-        #print("[Bing]Age-Verified")
+        # print("[Bing]Age-Verified")
     atags = soup.find_all(attrs={"class": "iusc"}) or soup.find_all(attrs={"m": True})
     for tag in atags:
         m = tag.attrs.get("m")
@@ -49,7 +49,7 @@ def get_data_bing(url, adl=False):
             link = js_data["purl"]
             fallback = js_data.get("turl")
             title = link
-            #print("[Bing]Found", img)
+            # print("[Bing]Found", img)
             if img not in str(data):
                 data.append(
                     {"img": img, "link": link, "title": title, "fallback": fallback}
@@ -67,7 +67,7 @@ def api(query):
 
 def get_data_google(url):
     data = []
-    #print("[Google]Fetching URL")
+    # print("[Google]Fetching URL")
     page = sess.get(url, headers=basic_headers, allow_redirects=True)
     page.raise_for_status
     soup = bs(page.text, "html.parser")
@@ -79,7 +79,7 @@ def get_data_google(url):
         link = meta.get("ru")
         fallback = meta.get("tu")
         if img:
-            #print("[Google]Found:", img)
+            # print("[Google]Found:", img)
             if img not in str(data):
                 data.append(
                     {"img": img, "link": link, "title": title, "fallback": fallback}
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     if safe == "y":
         adl = True
     else:
-        #print("safe set to false")
+        # print("safe set to false")
         adl = False
     get_data_bing(BASEURL_BING.format(query=query), adl=adl)
     get_data_google(BASEURL_GOOGLE.format(query=query))

@@ -2,6 +2,7 @@ import html
 import json
 from urllib.parse import unquote, unquote_plus
 from threading import Thread
+from bs4 import BeautifulSoup as bs
 from flask import (
     Flask,
     Response,
