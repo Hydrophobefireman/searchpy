@@ -307,14 +307,17 @@ class Api(object):
                 if not element:
                     continue
                 if element[1] in required_ids:
-                    data.append(
-                        {
-                            "fallback": element[2][0],
-                            "img": element[3][0],
-                            "title": element[9]["2003"][3],
-                            "link": element[9]["2003"][2],
-                        }
-                    )
+                    try:
+                        data.append(
+                            {
+                                "fallback": element[2][0],
+                                "img": element[3][0],
+                                "title": element[9]["2003"][3],
+                                "link": element[9]["2003"][2],
+                            }
+                        )
+                    except:
+                        continue
         results["data"] = data
         return results
 
