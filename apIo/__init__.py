@@ -38,6 +38,18 @@ class ExtractorError(BaseException):
     pass
 
 
+def _onlyId(soup):
+    return list(
+        filter(
+            lambda x: "refinements" not in x.lower(),
+            map(
+                lambda x: x.attrs.get("data-id"),
+                soup.find_all("div", attrs={"data-id": True}),
+            ),
+        )
+    )
+
+
 class Api(object):
     """main class for all searches"""
 
@@ -265,17 +277,43 @@ class Api(object):
         results["urls"] = _urls
         for url in _urls:
             page = sess.get(url, headers=basic_headers, allow_redirects=True)
-            soup = bs(page.text, "html.parser")
-            divs = soup.find_all("div", attrs={"class": "rg_meta notranslate"})
-            for div in divs:
-                meta = json.loads(div.text)
-                img = meta.get("ou")
-                link = meta.get("ru")
-                title = meta.get("pt") or meta.get("s") or link
-                fallback = meta.get("tu")
-                if img:
+            txt = page.text
+            soup = bs(txt, "html.parser")
+            reg = r"""(?<=_defd\('defd).*?(?='\);)"""
+            additional_defs = bs(
+                "\n".join(
+                    list(
+                        map(
+                            lambda x: x.split("'")[-1]
+                            .encode()
+                            .decode("unicode_escape")
+                            .replace("\\", ""),
+                            re.findall(reg, txt),
+                        )
+                    )
+                ),
+                "html.parser",
+            )
+            required_ids = [*_onlyId(soup)[1:], *_onlyId(additional_defs)]
+            json_data_reg = r"""(?<=function\(\)\{return)(.*?)(?=\}\}\)\;)"""
+            json_data = json.loads(
+                re.search(json_data_reg, soup.find_all("script")[-2].text, re.DOTALL)
+                .group()
+                .strip()
+            )[31][0][12][
+                2
+            ]  # yeah....
+            for element in map(lambda x: x[1], json_data):
+                if not element:
+                    continue
+                if element[1] in required_ids:
                     data.append(
-                        {"img": img, "link": link, "title": title, "fallback": fallback}
+                        {
+                            "fallback": element[2][0],
+                            "img": element[3][0],
+                            "title": element[9]["2003"][3],
+                            "link": element[9]["2003"][2],
+                        }
                     )
         results["data"] = data
         return results
