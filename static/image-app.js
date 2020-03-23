@@ -96,12 +96,12 @@
       updateLocalstorage();
       this.props.toggleSlideShow();
     };
-    _imgLoadedEvent = e => {
-      this.setState({ shouldShowSpinner: false });
-    };
+    // _imgLoadedEvent = e => {
+    //   this.setState({ shouldShowSpinner: false });
+    // };
     componentDidUpdate() {
       if (this.state.shouldShowSpinner) {
-        this.setState({ shouldShowSpinner: false });
+        setTimeout(() => this.setState({ shouldShowSpinner: false }), 100);
       }
     }
     render(props, state) {
@@ -110,7 +110,7 @@
         : state.allImages[state.currentIndex];
       return h(
         "div",
-        { style: { display: "flex" } },
+        { class: "img-slideshow-box" },
 
         h(
           "div",
@@ -146,7 +146,8 @@
         h(ImageComponent, {
           imgProps: data,
           class: "slideshow-image",
-          onClick: this._onClientImageClick
+          onClick: this._onClientImageClick,
+          onLoad: this._imgLoadedEvent
         })
       );
     }
@@ -197,12 +198,14 @@
       this.state = { hasError: false };
     }
     _onError = () => this.setState({ hasError: true });
-    _onClick = e => {};
+    componentDidUpdate(oldProps) {
+      if (oldProps.imgProps.fallback === loadingImageSrc)
+        this.state.hasError && this.setState({ hasError: false });
+    }
     render(props, state) {
       const { imgProps, ..._props } = props;
       return h("img", {
         onerror: this._onError,
-        onClick: this._onClick,
         class: "grid-image",
         src: state.hasError
           ? imgProps.fallback
