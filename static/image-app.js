@@ -32,6 +32,13 @@
     componentDidMount() {
       addEventListener("config-change", this._updateConfig);
     }
+    _setStartIndex = e => {
+      prefs.slideShow = true;
+      this.setState({
+        startIndex: +e.target.dataset.index
+      });
+      updateLocalstorage();
+    };
     render(props, state) {
       const { bingData, googleData } = props;
       const sendProps = {
@@ -42,34 +49,22 @@
       return h(
         "div",
         null,
-        h(
-          "div",
-          { style: "display:flex" },
-          h(PropertyComponent, {
-            propValue: "saveData",
-            propString: "Data Saver"
-          }),
-          h(PropertyComponent, {
-            propValue: "slideShow",
-            propString: "Slideshow"
-          })
-        ),
         state.slideShowEnabled
-          ? h(SlideShow, sendProps)
-          : h(ImageGrid, sendProps)
+          ? h(SlideShow, { ...sendProps, startIndex: this.state.startIndex })
+          : h(ImageGrid, { ...sendProps, setStartIndex: this._setStartIndex })
       );
     }
   }
   class SlideShow extends Component {
     constructor(props) {
       super(props);
-      const { bingData, googleData } = props;
+      const { bingData, googleData, startIndex } = props;
       const allImages = [...bingData, ...googleData];
       this.state = {
         allImages,
-        currentIndex: 0,
+        currentIndex: startIndex || 0,
         showLinkAndTitle: true,
-        allImagesLength: length,
+        allImagesLength: allImages.length,
         _fakeData: { fallback: loadingImageSrc, img: loadingImageSrc },
         shouldShowSpinner: false
       };
@@ -88,7 +83,8 @@
           if (newIndex < 0) newIndex = 0;
         } else {
           newIndex = ps.currentIndex + 1;
-          if (newIndex === this.state.allImagesLength) {
+
+          if (newIndex >= this.state.allImagesLength) {
             newIndex = 0;
           }
         }
@@ -156,7 +152,8 @@
     }
   }
   function ImageGrid(props) {
-    const { bingData, googleData } = props;
+    const { bingData, googleData, setStartIndex } = props;
+    const bLen = bingData.length;
     return h(
       "div",
       { class: "image-grid-box" },
@@ -167,7 +164,13 @@
         h(
           "div",
           { class: "image-grid" },
-          bingData.map(x => h(ImageComponent, { imgProps: x }))
+          bingData.map((x, i) =>
+            h(ImageComponent, {
+              imgProps: x,
+              "data-index": i,
+              onClick: setStartIndex
+            })
+          )
         )
       ),
       h(
@@ -177,7 +180,13 @@
         h(
           "div",
           { class: "image-grid" },
-          googleData.map(x => h(ImageComponent, { imgProps: x }))
+          googleData.map((x, i) =>
+            h(ImageComponent, {
+              imgProps: x,
+              "data-index": bLen + i,
+              onClick: setStartIndex
+            })
+          )
         )
       )
     );
@@ -188,11 +197,12 @@
       this.state = { hasError: false };
     }
     _onError = () => this.setState({ hasError: true });
-
+    _onClick = e => {};
     render(props, state) {
       const { imgProps, ..._props } = props;
       return h("img", {
         onerror: this._onError,
+        onClick: this._onClick,
         class: "grid-image",
         src: state.hasError
           ? imgProps.fallback
@@ -238,6 +248,18 @@
           value: query || null
         }),
         h("button", { class: "sbm-btn" }, "Search")
+      ),
+      h(
+        "div",
+        { style: "display:flex" },
+        h(PropertyComponent, {
+          propValue: "saveData",
+          propString: "Data Saver"
+        }),
+        h(PropertyComponent, {
+          propValue: "slideShow",
+          propString: "Slideshow"
+        })
       ),
       query
         ? [

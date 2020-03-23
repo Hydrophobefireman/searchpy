@@ -63,6 +63,7 @@
   margin: 10px;
   height: 250px;
   width: 250px;
+  cursor: pointer;
 }
 .image-grid {
   display: flex;
