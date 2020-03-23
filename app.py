@@ -96,10 +96,12 @@ def images_():
     _query = request.args.get("q")
     query = html.unescape(_query) if _query else False
     if not query:
-        return render_template("images-search.html")
+        return render_template("images.html", query="", bing={}, google={})
     google = api.google_images(query)["data"]
     bing = api.bing_images(query)["data"]
-    return render_template("images.html", query=query, bing=bing, google=google)
+    return render_template(
+        "images.html", query=query, bing=json.dumps(bing), google=json.dumps(google)
+    )
 
 
 @app.route("/images/get/", strict_slashes=False)

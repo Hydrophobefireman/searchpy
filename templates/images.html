@@ -1,169 +1,30 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <link href="/static/styles/images.min.css" rel="stylesheet" />
-    <title>
-      Images Search
-    </title>
-    <script>
-      window.onerror = e => alert(e);
-      window.data_saver = false;
-    </script>
-    <meta content="{{query}}" id="img-query" />
-    <script>
-      window.query = document
-        .getElementById("img-query")
-        .getAttribute("content");
-    </script>
-    <meta content="width=device-width,initial-scale=1.0" name="viewport" />
+    <meta
+      loading-img
+      content="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20height=%22300%22%20viewBox=%220%200%2024%2024%22%20width=%22300%22%3E%3Cpath%20d=%22M6%202v6h.01L6%208.01%2010%2012l-4%204%20.01.01H6V22h12v-5.99h-.01L18%2016l-4-4%204-3.99-.01-.01H18V2H6zm10%2014.5V20H8v-3.5l4-4%204%204zm-4-5l-4-4V4h8v3.5l-4%204z%22/%3E%3Cpath%20d=%22M0%200h24v24H0V0z%22%20fill=%22none%22/%3E%3C/svg%3E"
+    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images Search</title>
+    <script src="/static/uilib.js"></script>
+    <link rel="stylesheet" href="/static/image-app.css" />
   </head>
-  <body>
-    <script id="bing-data" type="application/json">
-      {{bing|tojson}}
-    </script>
-    <script id="google-data" type="application/json">
-      {{google|tojson}}
-    </script>
-    <div>
-      <button class="ipg" id="ytdl">
-        Save Data on Images
-      </button>
-    </div>
-    <div id="img-viewer">
-      <span>
-        Close
-      </span>
-    </div>
-    <a href="/search" id="txt-link">
-      Web Search
-    </a>
-    <div style="margin:auto;text-align: center;">
-      <div id="main">
-        <div class="input-box">
-          <div class="desc">
-            <span id="useless">
-              Search For Images
-            </span>
-          </div>
-          <div style="margin-top: 25px;">
-            <div
-              id="search-ghost"
-              style="font-size: 12px;visibility: hidden;margin-bottom: 10px;"
-            >
-              Search
-            </div>
-            <form action="/images/search/" id="image_form">
-              <input
-                class="input_n"
-                id="search"
-                name="q"
-                placeholder="Search"
-                style="text-align: center"
-                value=""
-              />
-              <script>
-                (() => {
-                  document.getElementById("search").value = window.query;
-                })();
-              </script>
-              <input style="display: none" type="submit" />
-            </form>
-          </div>
-          <button
-            id="btn_s"
-            onclick="document.getElementById('image_form').submit()"
-          >
-            Search
-          </button>
-        </div>
-        <div id="content">
-          <h1>
-            Results From Bing
-          </h1>
-          <div id="bing"></div>
-          <h1>
-            Results From Google
-          </h1>
-          <div id="google"></div>
-        </div>
-      </div>
-    </div>
-    <script src="/static/jsmin/images.js"></script>
+  <body data-bing="{{bing}}" data-google="{{google}}" data-query="{{query}}">
+    <div id="root"></div>
     <script>
-      var _bing = JSON.parse(document.getElementById("bing-data").innerText);
-      var _google = JSON.parse(
-        document.getElementById("google-data").innerText
-      );
-      for (var b of _bing) {
-        var im = document.createElement("img");
-        im.className = "display-imgs";
-        im.setAttribute("data-caption", b.title);
-        im.setAttribute("data-fallback", b.fallback);
-        im.setAttribute("data-link", b.link);
-        im.setAttribute("data-original", b.img);
-        im.setAttribute("title", b.title);
-        document.getElementById("bing").appendChild(im);
-      }
-      for (var b of _google) {
-        var im = document.createElement("img");
-        im.className = "display-imgs";
-        im.setAttribute("data-caption", b.title);
-        im.setAttribute("data-fallback", b.fallback);
-        im.setAttribute("data-link", b.link);
-        im.setAttribute("data-original", b.img);
-        im.setAttribute("title", b.title);
-        document.getElementById("google").appendChild(im);
-      }
-      var custom_dl = document.getElementById("ytdl");
-      custom_dl.onclick = function() {
-        if (window.data_saver) {
-          custom_dl.innerHTML = "Using Full Quality Images";
-          window.data_saver = false;
-          window.localStorage.setItem("save-data", false);
-          change_href(false);
-        } else {
-          window.data_saver = true;
-          change_href(true);
-          window.localStorage.setItem("save-data", true);
-          custom_dl.innerHTML = "Using Compressed Images";
-        }
+      const dataSet = document.body.dataset || {
+        bing: document.body.getAttribute("data-bing"),
+        google: document.body.getAttribute("data-google"),
+        query: document.body.getAttribute("data-query")
       };
-
-      function change_href(val) {
-        custom_dl.innerHTML = (() => {
-          if (val) {
-            return "Using Compressed Images";
-          } else {
-            return "Using Full Quality Images";
-          }
-        })();
-        el_array = document.getElementsByClassName("display-imgs");
-        for (var i = 0; i < el_array.length; i++) {
-          el = el_array[i];
-          if (val) {
-            el.src = el.getAttribute("data-fallback");
-          } else {
-            el.src = el.getAttribute("data-original");
-          }
-        }
-      }
+      window._initialData = {
+        bing: JSON.parse(dataSet.bing),
+        google: JSON.parse(dataSet.google),
+        query: dataSet.query
+      };
     </script>
-
-    <script>
-      if (window.localStorage.getItem("save-data")) {
-        window.data_saver = !0;
-      }
-      change_href(window.data_saver);
-      var imgs = document.getElementsByClassName("display-imgs");
-      for (var i = 0; i < imgs.length; i++) {
-        img = imgs[i];
-        img.onclick = function() {
-          make_image_viewer(
-            this.getAttribute("data-link"),
-            this.getAttribute("title"),
-            this.src
-          );
-        };
-      }
-    </script>
+    <script src="/static/image-app.js"></script>
   </body>
 </html>
