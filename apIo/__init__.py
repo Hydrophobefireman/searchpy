@@ -50,6 +50,15 @@ def _onlyId(soup):
     )
 
 
+json_data_reg = r"""(?<=data:function\(\)\{return)(.*?)(?=\}\}\)\;)"""
+
+
+def search_regex(x):
+
+    ret = re.search(json_data_reg, x.text, re.DOTALL)
+    return json.loads(ret.group().strip()) if ret else None
+
+
 class Api(object):
     """main class for all searches"""
 
@@ -295,12 +304,10 @@ class Api(object):
                 "html.parser",
             )
             required_ids = [*_onlyId(soup)[1:], *_onlyId(additional_defs)]
-            json_data_reg = r"""(?<=function\(\)\{return)(.*?)(?=\}\}\)\;)"""
-            json_data = json.loads(
-                re.search(json_data_reg, soup.find_all("script")[-2].text, re.DOTALL)
-                .group()
-                .strip()
-            )[31][0][12][
+
+            json_data = list(
+                filter(bool, (search_regex(x) for x in soup.find_all("script")))
+            )[0][31][0][12][
                 2
             ]  # yeah....
             for element in map(lambda x: x[1], json_data):
