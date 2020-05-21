@@ -308,8 +308,9 @@ class Api(object):
             required_ids = [*_onlyId(soup)[1:], *_onlyId(additional_defs)]
             json_data = list(
                 filter(bool, (search_regex(x) for x in soup.find_all("script")))
-            )[-1]
-            [31][0][12][2]  # yeah....
+            )[-1][31][0][12][
+                2
+            ]  # yeah....
             for element in map(lambda x: x[1], json_data):
                 if not element:
                     continue
