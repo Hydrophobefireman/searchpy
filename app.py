@@ -119,6 +119,11 @@ def get_images():
     return res
 
 
+@app.route("/debug/images/", strict_slashes=False)
+def deb_img():
+    return api.google_images(html.unescape(request.args.get("q")), debug=True)
+
+
 @app.route("/url")
 def redirect_no_referer():
     url = request.args.get("url")

@@ -252,7 +252,7 @@ class Api(object):
         results["data"] = data
         return results
 
-    def google_images(self, query, pages=1, page_start=0):
+    def google_images(self, query, pages=1, page_start=0, debug=False):
         """
         Google Image Searches,on average one page returns 100 results
         It also returns a fallback useful when the original image link dies
@@ -287,6 +287,8 @@ class Api(object):
         for url in _urls:
             page = sess.get(url, headers=basic_headers, allow_redirects=True)
             txt = page.text
+            if debug:
+                return txt
             soup = bs(txt, "html.parser")
             reg = r"""(?<=_defd\('defd).*?(?='\);)"""
             additional_defs = bs(
@@ -303,8 +305,8 @@ class Api(object):
                 ),
                 "html.parser",
             )
-            required_ids = [*_onlyId(soup)[1:], *_onlyId(additional_defs)]
 
+            required_ids = [*_onlyId(soup)[1:], *_onlyId(additional_defs)]
             json_data = list(
                 filter(bool, (search_regex(x) for x in soup.find_all("script")))
             )[0][31][0][12][

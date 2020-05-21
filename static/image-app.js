@@ -1,4 +1,4 @@
-(function() {
+(function () {
   if (typeof self === "undefined") {
     var self = window;
   }
@@ -19,23 +19,23 @@
       super(props);
       this.state = {
         slideShowEnabled: prefs.slideShow,
-        saveData: prefs.saveData
+        saveData: prefs.saveData,
       };
     }
     _updateConfig = () => {
       this.setState({
         saveData: prefs.saveData,
-        slideShowEnabled: prefs.slideShow
+        slideShowEnabled: prefs.slideShow,
       });
       console.log(this.state);
     };
     componentDidMount() {
       addEventListener("config-change", this._updateConfig);
     }
-    _setStartIndex = e => {
+    _setStartIndex = (e) => {
       prefs.slideShow = true;
       this.setState({
-        startIndex: +e.target.dataset.index
+        startIndex: +e.target.dataset.index,
       });
       updateLocalstorage();
     };
@@ -44,7 +44,7 @@
       const sendProps = {
         bingData,
         googleData,
-        toggleSlideShow: this._updateConfig
+        toggleSlideShow: this._updateConfig,
       };
       return h(
         "div",
@@ -66,17 +66,17 @@
         showLinkAndTitle: true,
         allImagesLength: allImages.length,
         _fakeData: { fallback: loadingImageSrc, img: loadingImageSrc },
-        shouldShowSpinner: false
+        shouldShowSpinner: false,
       };
     }
     _toggleShowLink = () =>
-      this.setState(ps => ({ showLinkAndTitle: !ps.showLinkAndTitle }));
-    _onClientImageClick = e => {
+      this.setState((ps) => ({ showLinkAndTitle: !ps.showLinkAndTitle }));
+    _onClientImageClick = (e) => {
       const clickTarget = e.target;
       const clickTargetWidth = clickTarget.offsetWidth;
       const xCoordInClickTarget =
         e.clientX - clickTarget.getBoundingClientRect().left;
-      this.setState(ps => {
+      this.setState((ps) => {
         let newIndex;
         if (clickTargetWidth / 2 > xCoordInClickTarget) {
           newIndex = ps.currentIndex - 1;
@@ -120,7 +120,7 @@
             {
               target: "_blank",
               href: data.link,
-              class: `link-title-top${state.showLinkAndTitle ? "" : " hide"}`
+              class: `link-title-top${state.showLinkAndTitle ? "" : " hide"}`,
             },
             data.title
           ),
@@ -128,26 +128,26 @@
             class: `action-button back-button${
               state.showLinkAndTitle ? "" : " rotate"
             }`,
-            onClick: this._toggleShowLink
+            onClick: this._toggleShowLink,
           })
         ),
         h(
           "div",
           {
             class: "title-link-ss",
-            style: { left: "unset", right: 0, padding: 0 }
+            style: { left: "unset", right: 0, padding: 0 },
           },
           h("div", {
             class: "action-button close-button",
             style: { margin: 0 },
-            onClick: this._closeSlideShow
+            onClick: this._closeSlideShow,
           })
         ),
         h(ImageComponent, {
           imgProps: data,
           class: "slideshow-image",
           onClick: this._onClientImageClick,
-          onLoad: this._imgLoadedEvent
+          onLoad: this._imgLoadedEvent,
         })
       );
     }
@@ -169,7 +169,7 @@
             h(ImageComponent, {
               imgProps: x,
               "data-index": i,
-              onClick: setStartIndex
+              onClick: setStartIndex,
             })
           )
         )
@@ -185,7 +185,7 @@
             h(ImageComponent, {
               imgProps: x,
               "data-index": bLen + i,
-              onClick: setStartIndex
+              onClick: setStartIndex,
             })
           )
         )
@@ -206,13 +206,13 @@
       const { imgProps, ..._props } = props;
       return h("img", {
         onerror: this._onError,
-        class: "grid-image",
+        class: "grid-image hoverable",
         src: state.hasError
           ? imgProps.fallback
           : prefs.saveData
           ? imgProps.fallback
           : imgProps.img,
-        ..._props
+        ..._props,
       });
     }
   }
@@ -237,7 +237,7 @@
     }
   }
 
-  const App = function() {
+  const App = function () {
     return h(
       "div",
       { class: "image-root" },
@@ -248,7 +248,7 @@
           class: "paper-input",
           placeholder: "Search",
           name: "q",
-          value: query || null
+          value: query || null,
         }),
         h("button", { class: "sbm-btn" }, "Search")
       ),
@@ -257,17 +257,17 @@
         { style: "display:flex" },
         h(PropertyComponent, {
           propValue: "saveData",
-          propString: "Data Saver"
+          propString: "Data Saver",
         }),
         h(PropertyComponent, {
           propValue: "slideShow",
-          propString: "Slideshow"
+          propString: "Slideshow",
         })
       ),
       query
         ? [
             h("div", null, "Search Results For: ", query),
-            h(ImageViewer, { bingData, googleData })
+            h(ImageViewer, { bingData, googleData }),
           ]
         : h("div", null, "Enter your search above")
     );
