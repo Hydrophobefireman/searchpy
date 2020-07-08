@@ -50,12 +50,12 @@ def _onlyId(soup):
     )
 
 
-json_data_reg = r"""(?<=data:function\(\)\{return)(.*?)(?=\}\}\)\;)"""
+json_data_reg = r"AF_initDataCallback\({.*?data:(\[.+\])(?=.?}\);)"
 
 
 def search_regex(x):
     ret = re.search(json_data_reg, x.text, re.DOTALL)
-    return json.loads(ret.group().strip()) if ret else None
+    return json.loads(ret.groups()[0]) if ret else None
 
 
 class Api(object):
@@ -306,26 +306,29 @@ class Api(object):
             )
 
             required_ids = [*_onlyId(soup)[1:], *_onlyId(additional_defs)]
-            json_data = list(
-                filter(bool, (search_regex(x) for x in soup.find_all("script")))
-            )[-1][31][0][12][
-                2
-            ]  # yeah....
-            for element in map(lambda x: x[1], json_data):
-                if not element:
-                    continue
-                if element[1] in required_ids:
-                    try:
-                        data.append(
-                            {
-                                "fallback": element[2][0],
-                                "img": element[3][0],
-                                "title": element[9]["2003"][3],
-                                "link": element[9]["2003"][2],
-                            }
-                        )
-                    except:
+            try:
+                json_data = list(
+                    filter(bool, (search_regex(x) for x in soup.find_all("script")))
+                )[-1][31][0][12][
+                    2
+                ]  # yeah....
+                for element in map(lambda x: x[1], json_data):
+                    if not element:
                         continue
+                    if element[1] in required_ids:
+                        try:
+                            data.append(
+                                {
+                                    "fallback": element[2][0],
+                                    "img": element[3][0],
+                                    "title": element[9]["2003"][3],
+                                    "link": element[9]["2003"][2],
+                                }
+                            )
+                        except:
+                            continue
+            except:
+                pass
         results["data"] = data
         return results
 
