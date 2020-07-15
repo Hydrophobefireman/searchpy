@@ -16,8 +16,8 @@ from flask import (
 from flask_compress import Compress
 from htmlmin.minify import html_minify
 
-import apIo
-import scrape
+from . import apIo
+from . import scrape
 
 api = apIo.Api()
 app = Flask(__name__)
@@ -64,32 +64,6 @@ def cors___(res):
     return res
 
 
-@app.route("/youtube/trending/", strict_slashes=False)
-def yt_trending():
-    data = api.youtube(trending=True)
-    res = make_response(json.dumps(data))
-    res.headers["Content-Type"] = "application/json"
-    return res
-
-
-@app.route("/youtube/search/", strict_slashes=False)
-def youtube_search():
-    _query = request.args.get("q")
-    query = html.unescape(_query) if _query else False
-    return render_template("youtube-results.html", q=query)
-
-
-@app.route("/youtube/get/", strict_slashes=False)
-def youtube_search_():
-    _query = request.args.get("q")
-    query = html.unescape(_query) if _query else False
-    if not query:
-        return redirect("/youtube")
-    data = api.youtube(query=query)
-    res = make_response(json.dumps(data))
-    res.headers["Content-Type"] = "application/json"
-    return res
-
 
 @app.route("/images/search/", strict_slashes=False)
 def images_():
@@ -119,9 +93,9 @@ def get_images():
     return res
 
 
-@app.route("/debug/images/", strict_slashes=False)
-def deb_img():
-    return api.google_images(html.unescape(request.args.get("q")), debug=True)
+# @app.route("/debug/images/", strict_slashes=False)
+# def deb_img():
+#     return api.google_images(html.unescape(request.args.get("q")), debug=True)
 
 
 @app.route("/url")
