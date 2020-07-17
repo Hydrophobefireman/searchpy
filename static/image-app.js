@@ -71,7 +71,10 @@
               googleData,
               saveData,
               slideShow,
-              setSlideShow,
+              setSlideShow: (value) => {
+                updateLocalstorage("slideShow", value);
+                setSlideShow(value);
+              },
             }),
           ]
         : h("div", null, "Enter your search above")
