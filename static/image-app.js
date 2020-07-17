@@ -95,6 +95,7 @@
     if (slideShow) {
       const allImages = bingData.concat(googleData);
       return h(SlideShow, {
+        saveData,
         images: allImages,
         index,
         closeSlideShow: () => {
@@ -220,6 +221,7 @@
       h(Image$, {
         ...data,
         class: "slideshow-image",
+        saveData: props.saveData,
         onClick: onClick,
       })
     );
