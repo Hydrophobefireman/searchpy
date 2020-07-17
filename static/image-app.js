@@ -1,243 +1,26 @@
-(function () {
+(() => {
   if (typeof self === "undefined") {
     var self = window;
   }
-  const loadingImageSrc = document
-    .querySelector("meta[loading-img]")
-    .getAttribute("content");
-  const { Component, h, render } = self.uiLib;
+  const { h, render, useState, useCallback, useEffect } = self.uiLib;
+
   const _ls = localStorage.getItem("data-config");
+
   const prefs = _ls ? JSON.parse(_ls) : { saveData: false, slideShow: false };
+
   const root = document.getElementById("root");
+
   const { bing: bingData, google: googleData, query } = self._initialData;
-  function updateLocalstorage() {
+
+  function updateLocalstorage(key, val) {
+    prefs[key] = val;
     localStorage.setItem("data-config", JSON.stringify(prefs));
-    dispatchEvent(new Event("config-change"));
-  }
-  class ImageViewer extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        slideShowEnabled: prefs.slideShow,
-        saveData: prefs.saveData,
-      };
-    }
-    _updateConfig = () => {
-      this.setState({
-        saveData: prefs.saveData,
-        slideShowEnabled: prefs.slideShow,
-      });
-      console.log(this.state);
-    };
-    componentDidMount() {
-      addEventListener("config-change", this._updateConfig);
-    }
-    _setStartIndex = (e) => {
-      prefs.slideShow = true;
-      this.setState({
-        startIndex: +e.target.dataset.index,
-      });
-      updateLocalstorage();
-    };
-    render(props, state) {
-      const { bingData, googleData } = props;
-      const sendProps = {
-        bingData,
-        googleData,
-        toggleSlideShow: this._updateConfig,
-      };
-      return h(
-        "div",
-        null,
-        state.slideShowEnabled
-          ? h(SlideShow, { ...sendProps, startIndex: this.state.startIndex })
-          : h(ImageGrid, { ...sendProps, setStartIndex: this._setStartIndex })
-      );
-    }
-  }
-  class SlideShow extends Component {
-    constructor(props) {
-      super(props);
-      const { bingData, googleData, startIndex } = props;
-      const allImages = [...bingData, ...googleData];
-      this.state = {
-        allImages,
-        currentIndex: startIndex || 0,
-        showLinkAndTitle: true,
-        allImagesLength: allImages.length,
-        _fakeData: { fallback: loadingImageSrc, img: loadingImageSrc },
-        shouldShowSpinner: false,
-      };
-    }
-    _toggleShowLink = () =>
-      this.setState((ps) => ({ showLinkAndTitle: !ps.showLinkAndTitle }));
-    _onClientImageClick = (e) => {
-      const clickTarget = e.target;
-      const clickTargetWidth = clickTarget.offsetWidth;
-      const xCoordInClickTarget =
-        e.clientX - clickTarget.getBoundingClientRect().left;
-      this.setState((ps) => {
-        let newIndex;
-        if (clickTargetWidth / 2 > xCoordInClickTarget) {
-          newIndex = ps.currentIndex - 1;
-          if (newIndex < 0) newIndex = 0;
-        } else {
-          newIndex = ps.currentIndex + 1;
-
-          if (newIndex >= this.state.allImagesLength) {
-            newIndex = 0;
-          }
-        }
-        return { currentIndex: newIndex, shouldShowSpinner: true };
-      });
-    };
-    _closeSlideShow = () => {
-      prefs.slideShow = !prefs.slideShow;
-      updateLocalstorage();
-      this.props.toggleSlideShow();
-    };
-    // _imgLoadedEvent = e => {
-    //   this.setState({ shouldShowSpinner: false });
-    // };
-    componentDidUpdate() {
-      if (this.state.shouldShowSpinner) {
-        setTimeout(() => this.setState({ shouldShowSpinner: false }), 100);
-      }
-    }
-    render(props, state) {
-      const data = state.shouldShowSpinner
-        ? this.state._fakeData
-        : state.allImages[state.currentIndex];
-      return h(
-        "div",
-        { class: "img-slideshow-box" },
-
-        h(
-          "div",
-          { class: "title-link-ss" },
-          h(
-            "a",
-            {
-              target: "_blank",
-              href: data.link,
-              class: `link-title-top${state.showLinkAndTitle ? "" : " hide"}`,
-            },
-            data.title
-          ),
-          h("div", {
-            class: `action-button back-button${
-              state.showLinkAndTitle ? "" : " rotate"
-            }`,
-            onClick: this._toggleShowLink,
-          })
-        ),
-        h(
-          "div",
-          {
-            class: "title-link-ss",
-            style: { left: "unset", right: 0, padding: 0 },
-          },
-          h("div", {
-            class: "action-button close-button",
-            style: { margin: 0 },
-            onClick: this._closeSlideShow,
-          })
-        ),
-        h(ImageComponent, {
-          imgProps: data,
-          class: "slideshow-image",
-          onClick: this._onClientImageClick,
-          onLoad: this._imgLoadedEvent,
-        })
-      );
-    }
-  }
-  function ImageGrid(props) {
-    const { bingData, googleData, setStartIndex } = props;
-    const bLen = bingData.length;
-    return h(
-      "div",
-      { class: "image-grid-box" },
-      h(
-        "div",
-        { class: "bing images" },
-        h("div", { style: { "font-weight": "bold" } }, "Bing Images"),
-        h(
-          "div",
-          { class: "image-grid" },
-          bingData.map((x, i) =>
-            h(ImageComponent, {
-              imgProps: x,
-              "data-index": i,
-              onClick: setStartIndex,
-            })
-          )
-        )
-      ),
-      h(
-        "div",
-        { class: "google images" },
-        h("div", { style: { "font-weight": "bold" } }, "Google Images"),
-        h(
-          "div",
-          { class: "image-grid" },
-          googleData.map((x, i) =>
-            h(ImageComponent, {
-              imgProps: x,
-              "data-index": bLen + i,
-              onClick: setStartIndex,
-            })
-          )
-        )
-      )
-    );
-  }
-  class ImageComponent extends Component {
-    constructor(props) {
-      super(props);
-      this.state = { hasError: false };
-    }
-    _onError = () => this.setState({ hasError: true });
-    componentDidUpdate(oldProps) {
-      if (oldProps.imgProps.fallback === loadingImageSrc)
-        this.state.hasError && this.setState({ hasError: false });
-    }
-    render(props, state) {
-      const { imgProps, ..._props } = props;
-      return h("img", {
-        onerror: this._onError,
-        class: "grid-image hoverable",
-        src: state.hasError
-          ? imgProps.fallback
-          : prefs.saveData
-          ? imgProps.fallback
-          : imgProps.img,
-        ..._props,
-      });
-    }
-  }
-  class PropertyComponent extends Component {
-    _togglePref = () => {
-      this.setState(() => {
-        const propValue = this.props.propValue;
-        prefs[propValue] = !prefs[propValue];
-        updateLocalstorage();
-        return {};
-      });
-    };
-    render(props, state) {
-      const propValue = props.propValue;
-      return h(
-        "button",
-        { class: "pref-button", onClick: this._togglePref },
-        props.propString,
-        " is ",
-        prefs[propValue] ? "On" : "Off"
-      );
-    }
   }
 
-  const App = function () {
+  const App = () => {
+    const [slideShow, setSlideShow] = useState(prefs.slideShow);
+    const [saveData, setSaveData] = useState(prefs.saveData);
+
     return h(
       "div",
       { class: "image-root" },
@@ -255,22 +38,191 @@
       h(
         "div",
         { style: "display:flex" },
-        h(PropertyComponent, {
-          propValue: "saveData",
-          propString: "Data Saver",
-        }),
-        h(PropertyComponent, {
-          propValue: "slideShow",
-          propString: "Slideshow",
-        })
+        h(
+          "button",
+          {
+            class: "pref-button",
+            onClick: () => {
+              updateLocalstorage("saveData", !saveData);
+              setSaveData(!saveData);
+            },
+          },
+          "Data Saver is ",
+          saveData ? "On" : "Off"
+        ),
+        h(
+          "button",
+          {
+            class: "pref-button",
+            onClick: () => {
+              updateLocalstorage("slideShow", !slideShow);
+              setSlideShow(!slideShow);
+            },
+          },
+          "Slide show is ",
+          slideShow ? "On" : "Off"
+        )
       ),
       query
         ? [
             h("div", null, "Search Results For: ", query),
-            h(ImageViewer, { bingData, googleData }),
+            h(ImageViewer, {
+              bingData,
+              googleData,
+              saveData,
+              slideShow,
+              setSlideShow,
+            }),
           ]
         : h("div", null, "Enter your search above")
     );
   };
+
+  function ImageViewer(props) {
+    const slideShow = props.slideShow;
+    const saveData = props.saveData;
+    const [index, setIndex] = useState(0);
+
+    const startSlideShow = useCallback((e) => {
+      const isGoogleImage = +e.target.dataset.group === 1;
+      const offset = isGoogleImage ? bingData.length : 0;
+      const idx = +e.target.dataset.idx + offset;
+      setIndex(idx);
+
+      props.setSlideShow(!slideShow);
+    });
+
+    if (slideShow) {
+      const allImages = bingData.concat(googleData);
+      return h(SlideShow, {
+        images: allImages,
+        index,
+        closeSlideShow: () => {
+          setIndex(0);
+          props.setSlideShow(false);
+        },
+      });
+    }
+
+    const data = { bing: bingData, google: googleData };
+    return h(
+      "div",
+      { class: "image-view" },
+      ["bing", "google"].map((x, i) =>
+        h(
+          "div",
+          null,
+          h("div", { style: { "font-weight": "bold" } }, `${x} Images`),
+          h(
+            "div",
+            { class: "image-store" },
+            h(ImageGrid, { imgs: data[x], saveData, startSlideShow, group: i })
+          )
+        )
+      )
+    );
+  }
+  function ImageGrid(props) {
+    const { saveData, imgs, startSlideShow, group } = props;
+
+    const onClick = startSlideShow;
+
+    return imgs.map((x, i) =>
+      h(Image$, {
+        saveData,
+        onClick,
+        "data-idx": i,
+        "data-group": group,
+        ...x,
+      })
+    );
+  }
+  function Image$(props) {
+    const { img, link, fallback, saveData, ...rest } = props;
+
+    const init = () => (saveData ? fallback : img);
+    const [src, setSrc] = useState(init);
+
+    useEffect(() => setSrc(init), [saveData, img, fallback]);
+
+    const onError = useCallback(() => {
+      if (src === img) {
+        setSrc(fallback);
+      }
+    }, [src]);
+
+    return h("img", { class: "grid-image hoverable", src, onError, ...rest });
+  }
+
+  function SlideShow(props) {
+    const { images, index: receivedIndex, closeSlideShow } = props;
+    const [index, setIndex] = useState(receivedIndex);
+    const [showLinkAndTitle, setShowLinkAndTitle] = useState(true);
+    const imageLen = images.length;
+    useEffect(() => index != receivedIndex && setIndex(receivedIndex), [
+      receivedIndex,
+    ]);
+
+    const onClick = (e) => {
+      const clickTarget = e.target;
+      const clickTargetWidth = clickTarget.offsetWidth;
+      const xCoordInClickTarget =
+        e.clientX - clickTarget.getBoundingClientRect().left;
+      let newIndex;
+      if (clickTargetWidth / 2 > xCoordInClickTarget) {
+        newIndex = index - 1;
+        if (newIndex < 0) newIndex = 0;
+      } else {
+        newIndex = index + 1;
+        if (newIndex >= imageLen) {
+          newIndex = 0;
+        }
+      }
+      setIndex(newIndex);
+    };
+    const data = images[index];
+
+    return h(
+      "div",
+      { class: "img-slideshow-box" },
+
+      h(
+        "div",
+        { class: "title-link-ss" },
+        h(
+          "a",
+          {
+            target: "_blank",
+            href: data.link,
+            class: `link-title-top${showLinkAndTitle ? "" : " hide"}`,
+          },
+          data.title
+        ),
+        h("div", {
+          class: `action-button back-button${
+            showLinkAndTitle ? "" : " rotate"
+          }`,
+          onClick: () => setShowLinkAndTitle(!showLinkAndTitle),
+        })
+      ),
+      h(
+        "div",
+        {
+          class: "title-link-ss",
+          style: { left: "unset", right: 0, padding: 0 },
+        },
+        h("div", {
+          class: "action-button close-button",
+          style: { margin: 0 },
+          onClick: closeSlideShow,
+        })
+      ),
+      h(Image$, {
+        ...data,
+        class: "slideshow-image",
+        onClick: onClick,
+      })
+    );
+  }
   render(h(App), root);
 })();

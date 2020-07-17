@@ -59,11 +59,11 @@
   }
 }
 .grid-image {
-  margin: 3px;
-  cursor: pointer;
-  height: 10rem;
-  width: 10rem;
   border-radius: 10px;
+  margin: 2px;
+  max-width: 30vw;
+  align-self: stretch;
+  cursor: pointer;
 }
 .img-slideshow-box {
   display: flex;
@@ -75,7 +75,7 @@
   margin: auto;
   background: white;
 }
-.image-grid {
+.image-store {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

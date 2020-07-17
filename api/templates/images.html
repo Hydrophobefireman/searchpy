@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta
-      loading-img
-      content="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20height=%22300%22%20viewBox=%220%200%2024%2024%22%20width=%22300%22%3E%3Cpath%20d=%22M6%202v6h.01L6%208.01%2010%2012l-4%204%20.01.01H6V22h12v-5.99h-.01L18%2016l-4-4%204-3.99-.01-.01H18V2H6zm10%2014.5V20H8v-3.5l4-4%204%204zm-4-5l-4-4V4h8v3.5l-4%204z%22/%3E%3Cpath%20d=%22M0%200h24v24H0V0z%22%20fill=%22none%22/%3E%3C/svg%3E"
-    />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Images Search</title>
@@ -17,14 +13,14 @@
       const dataSet = document.body.dataset || {
         bing: document.body.getAttribute("data-bing"),
         google: document.body.getAttribute("data-google"),
-        query: document.body.getAttribute("data-query")
+        query: document.body.getAttribute("data-query"),
       };
       window._initialData = {
         bing: JSON.parse(dataSet.bing),
         google: JSON.parse(dataSet.google),
-        query: dataSet.query
+        query: dataSet.query,
       };
     </script>
-    <script src="/static/image-app.js"></script>
+    <script src="/static/image-app-es5.js"></script>
   </body>
 </html>

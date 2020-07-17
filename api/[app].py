@@ -13,21 +13,31 @@ from flask import (
     request,
     send_from_directory,
 )
-from flask_compress import Compress
-from htmlmin.minify import html_minify
 
-from . import apIo
-from . import scrape
+from os.path import isdir
+
+try:
+    from . import apIo
+except ImportError:
+    import apIo
+try:
+    from . import scrape
+except ImportError:
+    import scrape
 
 api = apIo.Api()
 app = Flask(__name__)
-Compress(app)
 user_agent = apIo._useragent
+
+if not isdir("static"):
+    from os.path import join
+
+    app.static_folder = join("..", "static")
 
 
 @app.route("/")
 def index():
-    return html_minify(render_template("index.html"))
+    return render_template("index.html")
 
 
 @app.route("/search")
@@ -36,9 +46,9 @@ def search():
     _start = request.args.get("start") or 0
     start = int(_start)
     if not query:
-        return html_minify(render_template("index.html"))
+        return render_template("index.html")
     query = html.unescape(query)
-    return html_minify(render_template("search.html", query=query, start=start))
+    return render_template("search.html", query=query, start=start)
 
 
 @app.route("/youtube/", strict_slashes=False)
@@ -62,7 +72,6 @@ def cors___(res):
     else:
         res.headers["Vary"] = "Access-Control-Allow-Origin,Access-Control-Allow-Headers"
     return res
-
 
 
 @app.route("/images/search/", strict_slashes=False)
@@ -103,7 +112,7 @@ def redirect_no_referer():
     url = request.args.get("url")
     if not url:
         abort(400)
-    return html_minify(render_template("redirect.html", url=url))
+    return render_template("redirect.html", url=url)
 
 
 @app.before_request
