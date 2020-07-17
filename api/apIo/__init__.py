@@ -54,7 +54,10 @@ json_data_reg = r"AF_initDataCallback\({.*?data:(\[.+\])(?=.?}\);)"
 
 
 def search_regex(x):
-    ret = re.search(json_data_reg, x.text, re.DOTALL)
+    s = x.string
+    if not s:
+        return
+    ret = re.search(json_data_reg, x.string, re.DOTALL)
     return json.loads(ret.groups()[0]) if ret else None
 
 
@@ -309,9 +312,8 @@ class Api(object):
             try:
                 json_data = list(
                     filter(bool, (search_regex(x) for x in soup.find_all("script")))
-                )[-1][31][0][12][
-                    2
-                ]  # yeah....
+                )[-1][31][0][12][2]
+                # yeah....
                 for element in map(lambda x: x[1], json_data):
                     if not element:
                         continue
@@ -327,7 +329,8 @@ class Api(object):
                             )
                         except:
                             continue
-            except:
+            except Exception as e:
+                # print(e)
                 pass
         results["data"] = data
         return results
