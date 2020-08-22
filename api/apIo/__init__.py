@@ -332,7 +332,7 @@ class Api(object):
                         except:
                             continue
             except Exception as e:
-                data = str(e)
+                data  = [{'error':str(e)}]
                 pass
         results["data"] = data
         return results
