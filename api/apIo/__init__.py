@@ -50,7 +50,7 @@ def _onlyId(soup):
     )
 
 
-json_data_reg = r"AF_initDataCallback\({.*?data:(\[.+\])(?=.?}\);)"
+json_data_reg = r"AF_initDataCallback\({.*?data:(\[.+\])(?=.?(}\);|,\s?sideChannel))"
 
 
 def search_regex(x):
@@ -58,7 +58,9 @@ def search_regex(x):
     if not s:
         return
     ret = re.search(json_data_reg, x.string, re.DOTALL)
-    return json.loads(ret.groups()[0]) if ret else None
+    x =  json.loads(ret.groups()[0]) if ret else None
+    print(x)
+    return x
 
 
 class Api(object):
@@ -330,7 +332,7 @@ class Api(object):
                         except:
                             continue
             except Exception as e:
-                # print(e)
+                data = str(e)
                 pass
         results["data"] = data
         return results
