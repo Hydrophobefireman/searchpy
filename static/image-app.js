@@ -2,7 +2,7 @@
   if (typeof self === "undefined") {
     var self = window;
   }
-  const { h, render, useState, useCallback, useEffect } = self.uiLib;
+  const { h, render, useState, useCallback, useEffect, useRef } = self.uiLib;
 
   const _ls = localStorage.getItem("data-config");
 
@@ -11,6 +11,52 @@
   const root = document.getElementById("root");
 
   const { bing: bingData, google: googleData, query } = self._initialData;
+
+  let observer;
+  const listenerMap = new WeakMap();
+  let createObserver = function () {
+    if (!observer) {
+      observer = new IntersectionObserver((e) => {
+        e.forEach((entry) => {
+          const fn = listenerMap.get(entry.target);
+          fn && fn(entry.isIntersecting);
+        });
+      });
+      createObserver = function () {};
+    }
+  };
+  function LazyImage(props) {
+    createObserver();
+    const [intersecting, setIntersecting] = useState(false);
+    const [shouldLoad, setLoad] = useState(false);
+    const imgRef = useRef();
+    const $src = useRef(props.src);
+    useEffect(() => {
+      const oldSrc = $src.current;
+      const currSrc = props.src;
+      if (!intersecting && oldSrc != currSrc) {
+        setLoad(false);
+      }
+      $src.current = currSrc;
+    }, [props.src, intersecting]);
+    useEffect(() => {
+      const current = imgRef.current;
+      if (current) {
+        observer.observe(current);
+        const listener = (value) => {
+          setIntersecting(value);
+          setLoad((prev) => value || prev);
+        };
+        listenerMap.set(current, listener);
+      }
+      return () => listenerMap.delete(current);
+    }, [imgRef.current]);
+    const { src, ...rest } = props;
+    return h(
+      "img",
+      Object.assign({}, rest, { src: shouldLoad ? src : null, ref: imgRef })
+    );
+  }
 
   function updateLocalstorage(key, val) {
     prefs[key] = val;
@@ -155,7 +201,12 @@
       }
     }, [src]);
 
-    return h("img", { class: "grid-image hoverable", src, onError, ...rest });
+    return h(LazyImage, {
+      class: "grid-image hoverable",
+      src,
+      onError,
+      ...rest,
+    });
   }
 
   function SlideShow(props) {

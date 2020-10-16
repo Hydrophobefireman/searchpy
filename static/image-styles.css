@@ -64,6 +64,10 @@
   max-width: 30vw;
   align-self: stretch;
   cursor: pointer;
+  min-height: 200px;
+  min-width: 200px;
+  background-color: rgb(128, 128, 128);
+  overflow: hidden;
 }
 .img-slideshow-box {
   display: flex;
