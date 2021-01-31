@@ -201,7 +201,7 @@
       }
     }, [src]);
 
-    return h(img, {
+    return h("img", {
       loading: "lazy",
       class: "grid-image hoverable",
       src,

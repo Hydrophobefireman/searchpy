@@ -59,7 +59,7 @@ def search_regex(x):
         return
     ret = re.search(json_data_reg, x.string, re.DOTALL)
     x = json.loads(ret.groups()[0]) if ret else None
-    print(x)
+    # print(x)
     return x
 
 
