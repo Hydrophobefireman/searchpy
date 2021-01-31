@@ -201,7 +201,8 @@
       }
     }, [src]);
 
-    return h(LazyImage, {
+    return h(img, {
+      loading: "lazy",
       class: "grid-image hoverable",
       src,
       onError,

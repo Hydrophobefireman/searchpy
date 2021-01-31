@@ -58,7 +58,7 @@ def search_regex(x):
     if not s:
         return
     ret = re.search(json_data_reg, x.string, re.DOTALL)
-    x =  json.loads(ret.groups()[0]) if ret else None
+    x = json.loads(ret.groups()[0]) if ret else None
     print(x)
     return x
 
@@ -67,7 +67,7 @@ class Api(object):
     """main class for all searches"""
 
     def google(self, query, pages=1, page_start=0):
-        """Google Text based search currently an average search gives 
+        """Google Text based search currently an average search gives
         out 7-8 links per page so it is recommended to set pages=2"""
         if pages >= 100 or page_start >= 1000:
             raise ValueError(
@@ -79,8 +79,10 @@ class Api(object):
             for j in range(pages):
                 i = j + 1
                 if i == 1:
-                    google_base = "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8".format(
-                        q=quote_plus(query)
+                    google_base = (
+                        "https://www.google.com/search?q={q}&oq={q}&ie=UTF-8".format(
+                            q=quote_plus(query)
+                        )
                     )
                 else:
                     start += 10
@@ -100,13 +102,13 @@ class Api(object):
         sess = requests.Session()
         for url in _urls:
             page = sess.get(url, headers=basic_headers)
-            _results_class = "rc"
+            _results_class = "tF2Cxc"
             _webcache_class = "fl"
-            _description_class = "st"
+            _description_class = "aCOpRe"
             soup = bs(page.text, "html.parser")
             _results = soup.find_all(attrs={"class": _results_class})
             for res in _results:
-                _link = res.findChild("a", attrs={"href": True, "ping": True})
+                _link = res.findChild("a", attrs={"href": True, "data-ved": True})
                 if _link is None:
                     _link = res.findChild("cite")
                     if _link is None:
@@ -117,7 +119,7 @@ class Api(object):
                     heading = link
                 else:
                     link = _link.attrs.get("href")
-                    heading = _link.string
+                    heading = _link.find("h3").text
                 _cached = res.findChildren("a", attrs={"class": _webcache_class})
                 cached = [
                     s.attrs["href"]
@@ -125,7 +127,7 @@ class Api(object):
                     if "webcache" in str(s.attrs.get("href"))
                 ]
                 cached = cached[0] if cached else None
-                _text = res.findChild(attrs={"class": "st"})
+                _text = res.findChild(attrs={"class": _description_class})
                 if _text is None:
                     text = res.text.replace(link, "").replace("Cached", "")
                 else:
@@ -153,8 +155,10 @@ class Api(object):
                     )
                 else:
                     start += 10
-                    bing_base = "https://www.bing.com/search?q={q}&first={start}".format(
-                        q=quote_plus(query), start=start
+                    bing_base = (
+                        "https://www.bing.com/search?q={q}&first={start}".format(
+                            q=quote_plus(query), start=start
+                        )
                     )
                 _urls.append(bing_base)
         else:
@@ -332,7 +336,7 @@ class Api(object):
                         except:
                             continue
             except Exception as e:
-                data  = [{'error':str(e)}]
+                data = [{"error": str(e)}]
                 pass
         results["data"] = data
         return results

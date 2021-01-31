@@ -51,11 +51,6 @@ def search():
     return render_template("search.html", query=query, start=start)
 
 
-@app.route("/youtube/", strict_slashes=False)
-def yt_home():
-    return render_template("youtube.html")
-
-
 @app.after_request
 def cors___(res):
     res.direct_passthrough = False
