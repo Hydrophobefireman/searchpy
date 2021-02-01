@@ -112,9 +112,7 @@ class Api(object):
                 if _link is None:
                     _link = res.findChild("cite")
                     if _link is None:
-                        raise ExtractorError(
-                            "No Links Found on page 1 of search results"
-                        )
+                        continue
                     link = _link.text
                     heading = link
                 else:
@@ -136,7 +134,9 @@ class Api(object):
                 results["data"].append(
                     {"link": link, "heading": heading, "cached": cached, "text": text}
                 )
-        return results
+        if len(results["data"]):
+            return results
+        raise ExtractorError("No Links Found")
 
     def bing(self, query, pages=1, page_start=0):
         """
