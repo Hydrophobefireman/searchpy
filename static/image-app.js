@@ -25,38 +25,6 @@
       createObserver = function () {};
     }
   };
-  function LazyImage(props) {
-    createObserver();
-    const [intersecting, setIntersecting] = useState(false);
-    const [shouldLoad, setLoad] = useState(false);
-    const imgRef = useRef();
-    const $src = useRef(props.src);
-    useEffect(() => {
-      const oldSrc = $src.current;
-      const currSrc = props.src;
-      if (!intersecting && oldSrc != currSrc) {
-        setLoad(false);
-      }
-      $src.current = currSrc;
-    }, [props.src, intersecting]);
-    useEffect(() => {
-      const current = imgRef.current;
-      if (current) {
-        observer.observe(current);
-        const listener = (value) => {
-          setIntersecting(value);
-          setLoad((prev) => value || prev);
-        };
-        listenerMap.set(current, listener);
-      }
-      return () => listenerMap.delete(current);
-    }, [imgRef.current]);
-    const { src, ...rest } = props;
-    return h(
-      "img",
-      Object.assign({}, rest, { src: shouldLoad ? src : null, ref: imgRef })
-    );
-  }
 
   function updateLocalstorage(key, val) {
     prefs[key] = val;
@@ -131,7 +99,18 @@
     const slideShow = props.slideShow;
     const saveData = props.saveData;
     const [index, setIndex] = useState(0);
+    const scrollState = useRef();
 
+    useEffect(() => {
+      if (!slideShow && scrollState.current)
+        window.scroll(scrollX, scrollState.current);
+    }, [slideShow]);
+    
+    useEffect(() => {
+      window.addEventListener("scroll", () => {
+        scrollState.current = window.scrollY;
+      });
+    }, []);
     const startSlideShow = useCallback((e) => {
       const isGoogleImage = +e.target.dataset.group === 1;
       const offset = isGoogleImage ? bingData.length : 0;
