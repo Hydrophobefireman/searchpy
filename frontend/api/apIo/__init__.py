@@ -1,9 +1,4 @@
 """
-Creates Simple APIs For some major websites
-that make scraping easy,request a website or create a pull request at
-https://github.com/hydrophobefireman/apIo/ 
-
-Goal:support youtube,google,bing,duckduckgo,wikipedia and reddit(read data only)
 Example:
 Get google searches:
 >>> from apIo import Api
@@ -16,18 +11,20 @@ https://www.python.org
 >>> data[0]['heading']
 The Home of Python
 """
-import requests
-from bs4 import BeautifulSoup as bs
+import html
 import json
 import re
 from urllib.parse import quote_plus, urlencode, urlparse
-import html
 from warnings import warn
 
-_useragent = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
+import requests
+from bs4 import BeautifulSoup as bs
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\
+     (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36"
 basic_headers = {
     "Accept-Encoding": "gzip,deflate",
-    "User-Agent": _useragent,
+    "User-Agent": USER_AGENT,
     "Upgrade-Insecure-Requests": "1",
     "dnt": "1",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
@@ -337,7 +334,7 @@ class Api(object):
                             continue
             except Exception as e:
                 data = [{"error": str(e)}]
-                pass
+
         results["data"] = data
         return results
 

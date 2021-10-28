@@ -1,4 +1,4 @@
 {
-  "routes": [
-    { "src": "/((search|images|url).*)?", "dest": "/api/[app].py" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "cleanUrls": true
 }

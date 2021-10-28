@@ -1,6 +1,7 @@
+
 import html
 import json
-from urllib.parse import quote, urlencode, quote_plus
+from urllib.parse import quote_plus, urlencode
 
 import requests
 from bs4 import BeautifulSoup as bs
@@ -69,7 +70,6 @@ def get_data_google(url):
     data = []
     # print("[Google]Fetching URL")
     page = sess.get(url, headers=basic_headers, allow_redirects=True)
-    page.raise_for_status
     soup = bs(page.text, "html.parser")
     divs = soup.find_all("div", attrs={"class": "rg_meta notranslate"})
     for div in divs:
