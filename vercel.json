@@ -1,4 +1,7 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" },
+    { "source": "/api/(.*)", "destination": "/api/[app].py" }
+  ],
   "cleanUrls": true
 }

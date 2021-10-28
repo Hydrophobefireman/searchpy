@@ -105,7 +105,7 @@ def scrape_results():
     if not query:
         return redirect("/search")
     query = html.unescape(query)
-    _start = request.args.get("start") or 0
+    _start = request.args.get("start") or "0"
     start = int(_start) if _start.isdigit() else 0
     google = api.google(query, page_start=start)
     bing = api.bing(query, page_start=start)
