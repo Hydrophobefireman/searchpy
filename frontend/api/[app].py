@@ -70,12 +70,14 @@ def get_images():
     query = html.unescape(query)
     try:
         res = make_response(
-            {
-                "data": {
-                    "google": api.google_images(query)["data"],
-                    "bing": api.bing_images(query)["data"],
+            json.dumps(
+                {
+                    "data": {
+                        "google": api.google_images(query)["data"],
+                        "bing": api.bing_images(query)["data"],
+                    }
                 }
-            }
+            )
         )
     except Exception as e:
         return {"error": str(e)}
