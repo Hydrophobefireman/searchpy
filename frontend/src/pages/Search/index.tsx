@@ -32,6 +32,8 @@ interface TextSearchResults {
   data: Array<Result>;
 }
 function getSearchResults(engine: "google" | "bing", q: string, start = 0) {
+  q = (q || "").trim();
+
   return requests.get<{ google: TextSearchResults; bing: TextSearchResults }>(
     buildUrl(
       `/api/get-${engine}?${new URLSearchParams({
@@ -141,7 +143,6 @@ export default function Search() {
           setError(null);
           fetchResults(true);
         },
-        type: "error",
         content: <div>An error occured: {error}</div>,
       });
     }

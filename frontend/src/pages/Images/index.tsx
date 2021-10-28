@@ -23,6 +23,13 @@ import { Switch, useSwitch } from "@kit/input";
 import { Text } from "@kit/text";
 
 function getImages(q: string) {
+  q = (q || "").trim();
+  if (!q)
+    return {
+      result: Promise.resolve({ data: null, error: null }),
+      controller: new AbortController(),
+      headers: Promise.resolve(new Headers()),
+    };
   return requests.get<ResultType>(
     buildUrl(`/api/images-get?${new URLSearchParams({ q }).toString()}`)
   );
@@ -70,6 +77,24 @@ export default function Images({}) {
     const group = currentTarget.dataset.group;
     setSlideShow({ group, index });
   }
+  const content = (
+    <>
+      {!slideShow ? (
+        <ResultRenderer
+          startSlideShow={startSlideShow}
+          resp={resp}
+          dataSaver={currentState}
+        />
+      ) : (
+        <SlideShowRenderer
+          resp={resp}
+          group={slideShow.group}
+          index={slideShow.index}
+          close={() => setSlideShow(null)}
+        />
+      )}
+    </>
+  );
   return (
     <Resource resourceName="images" isPending={!resp}>
       <SearchBox
@@ -107,20 +132,7 @@ export default function Images({}) {
           </TextButton>
         </Container>
       </SearchBox>
-      {!slideShow ? (
-        <ResultRenderer
-          startSlideShow={startSlideShow}
-          resp={resp}
-          dataSaver={currentState}
-        />
-      ) : (
-        <SlideShowRenderer
-          resp={resp}
-          group={slideShow.group}
-          index={slideShow.index}
-          close={() => setSlideShow(null)}
-        />
-      )}
+      {searchQuery && content}
     </Resource>
   );
 }

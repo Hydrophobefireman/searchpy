@@ -102,10 +102,12 @@ export function SlideShowRenderer({
         onClick={close}
         color="var(--kit-foreground)"
         class={css({
+          background: "var(--kit-foreground)",
           cursor: "pointer",
           position: "fixed",
           top: "5px",
           right: "5px",
+
           transform: "scale(1.2)",
         })}
       />
