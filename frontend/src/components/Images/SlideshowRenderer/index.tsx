@@ -100,7 +100,7 @@ export function SlideShowRenderer({
     <Container horizontal="left" class={imgContainerCss}>
       <XIcon
         onClick={close}
-        color="var(--kit-foreground)"
+        color="var(--kit-background)"
         class={css({
           background: "var(--kit-foreground)",
           cursor: "pointer",
